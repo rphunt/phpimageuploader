@@ -1,55 +1,77 @@
-window.onload = (e) => {
+/*
+* JS for php upload page and php endpoint.
+* Ajax consists of POST values and a FILE object.
+* Endpoint should use both sets of data to allow things 
+* like overwrite and rename.
+*
+*/
+$(document).ready(function() {
 
-	let form = 'uploadform';
-	let input = 'userimg';
-	let srcFile = null
-	let c = (el) => {console.log(el);};
+	let form = $('#uploadform');
+	let input = $('#userimg');
+	let srcFile = null;
+	let endpoint = 'uploader.php';
+	let filename = [];
 
-	let gebi = (el) => {
-		return document.getElementById(el);
-	};
+	dropzone = $('#dropzone')[0];
 
-	dropzone = gebi('dropzone');
+	c = function(msg) {console.log(msg);}
 
-	gebi(form).addEventListener('submit', (e) => {
+	/* handle file drag and drop event 
+	* assign file data to srcFile 
+	* filename input field is automatically set
+	*/
+	dropzone.ondrop = (e) => {
+		e.preventDefault();
+		srcFile = e.dataTransfer.files[0];
+		form[0].filename.value = srcFile.name;
+		c(srcFile);
+	}
+
+	/* handle form select button event 
+	* assign file data to srcFile 
+	* filename input field is automatically set
+	*/
+	input.on('change', function(e) {
+		e.preventDefault();
+		srcFile = input[0].files[0];
+		form[0].filename.value = srcFile.name;
+		c(srcFile);
+	});
+
+	form.on('submit', function(e) {
 		e.preventDefault();
 		c('submit');
+
+		filename = ['filename', form[0].filename.value];
+
+		upload();
+	});
+
+	let upload = function() {
+
 		let formdata = new FormData();
-		formdata.append(input, srcFile);
-		upload(formdata);
-	});
+		formdata.append('userimg', srcFile);
+		formdata.append(filename[0], filename[1]);
 
-	gebi(input).addEventListener('change', (e) => {
-		e.preventDefault();
-		let srcFile = gebi(input).files;
-		c(srcFile);		
-	});
+		$.ajax({
+			url: endpoint,
+			data: formdata,
+			processData: false,
+			contentType: false,
+			type: 'multipart/form-data',
+			method: 'POST'
+		})
+		.done(function(resp){
+			c(resp);
+		})
+		.fail(function(xhr){
+			c(xhr.statusText);
+		});
 
-	let upload = (formdata) => {
-
-		c(formdata);
-
-		let ajax = new XMLHttpRequest();
-
-		ajax.addEventListener('load',ajaxLoad,false);
-		ajax.addEventListener('error',ajaxError,false);
-		ajax.addEventListener('abort',ajaxAbort,false);
-
-		ajax.open('POST', 'uploader.php');
-		ajax.send(formdata);
 	};
 
-	let ajaxLoad = (e) => {
-		c(e.target.responseText);
-	};
-
-	let ajaxError = (e) => {
-		c('error');
-	};
-
-	let ajaxAbort = (e) => {
-		c('aborted');
-	};
+	/* handle other drag events to have no effect */
 
 	document.ondrop = (e) => {
 		e.preventDefault();
@@ -63,18 +85,6 @@ window.onload = (e) => {
 		e.preventDefault();
 	}
 
-	dropzone.ondrop = (e) => {
-		e.preventDefault();
-		srcFiles = document.querySelector('input').files = e.dataTransfer.files;
-		c(srcFiles);
-	}
 
 
-
-
-
-
-
-
-
-};
+});
