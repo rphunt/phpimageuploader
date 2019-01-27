@@ -1,0 +1,20 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: 'Arial', sans-serif;
+	background-color: transparent;
+	color: #000000;
+}
+
+body {
+	margin: 10px;
+}
+
+#dropzone {
+	width: 200px;
+	height: 200px;
+	background-color: #cccccc;
+	border: dashed 4px #999999;
+	margin: 0 0 2em 0;
+}
