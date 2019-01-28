@@ -6,47 +6,40 @@
 */
 $(document).ready(function() {
 
-	let form = $('#uploadform'); // form as object
-	let input = $('#userimg'); // file input as object
+	/*** Variables ***/
+
+	let form = $('#uploaderform'); // form as object
+	let input = $('#uploaderimg'); // file input as object
 	let srcFile = null; // set to the file data
 	let endpoint = 'uploader.php'; // endpoint path
 	let filename = []; // key/value for renaming a file
+	let imgwrap = null;
 
-	dropzone = $('#dropzone')[0]; // dropzone as element
+	dropzone = $('#dropzone'); // dropzone as element
 
 	c = function(msg) {console.log(msg);}
 
 
-
-	let display = () => {
-		$('<input type="text" id="filename" name=""filename" value="'+srcFile.name+'">').appendTo(dropzone);
-		$('<p>Size: '+srcFile.size+'</p>').appendTo(dropzone);
-
-		c(srcFile);
-	};
+	/*** Events ***/
 
 	/* handle file drag and drop event 
 	* assign file data to srcFile 
-	* filename input field is automatically set
+	* display file info
 	*/
-	dropzone.ondrop = (e) => {
+	dropzone[0].ondrop = (e) => {
 		e.preventDefault();
 		srcFile = e.dataTransfer.files[0];
 		display();
-		//form[0].filename.value = srcFile.name;
-		//c(srcFile);
 	}
 
 	/* handle form select button event 
 	* assign file data to srcFile 
-	* filename input field is automatically set
+	* display file info
 	*/
 	input.on('change', function(e) {
 		e.preventDefault();
 		srcFile = input[0].files[0];
 		display();
-		//form[0].filename.value = srcFile.name;
-		//c(srcFile);
 	});
 
 	/*
@@ -61,6 +54,28 @@ $(document).ready(function() {
 		upload();
 	});
 
+	$('#uploaderreset').on('click', function(e) {
+		e.preventDefault();
+		uploaderReset(true);
+	});
+
+	/* 
+	* Handle other drag events to have no effect 
+	*/
+	document.ondrop = (e) => {
+		e.preventDefault();
+	}
+
+	document.ondragover = (e) => {
+		e.preventDefault();
+	}
+
+	dropzone[0].ondragover = (e) => {
+		e.preventDefault();
+	}
+
+
+	/*** Functions ***/
 
 	/*
 	* Create formdata and append file data and post data.
@@ -89,21 +104,36 @@ $(document).ready(function() {
 
 	};
 
-	/* 
-	* Handle other drag events to have no effect 
+
+	/*
+	* Set uploader back to initial conditions
+	* clearVars is set to also initialize values.
 	*/
-	document.ondrop = (e) => {
-		e.preventDefault();
-	}
+	let uploaderReset = (clearVars) => {
+		dropzone.empty();
+		$('#uploadersubmit, #uploaderreset').hide();
 
-	document.ondragover = (e) => {
-		e.preventDefault();
-	}
+		if (clearVars) {
+			srcFile = null;
+			form[0].reset();
+		}
+	};
 
-	dropzone.ondragover = (e) => {
-		e.preventDefault();
-	}
+	/*
+	* Display image and stats about it.
+	* Include a field for changing the name.
+	*/
+	let display = () => {
+		uploaderReset(false);
 
+		imgwrap = $('<div id="imgwrap"></div>').appendTo(dropzone);
+		$('<input type="text" id="filename" name=""filename" value="'+srcFile.name+'">').appendTo(imgwrap);
+		$('<p>Size: '+srcFile.size+'</p>').appendTo(imgwrap);
+
+		c(srcFile);
+
+		$('#uploadersubmit, #uploaderreset').show();
+	};
 
 
 });

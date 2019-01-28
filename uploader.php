@@ -9,7 +9,7 @@ var_dump($_POST);
 
 echo "FILES, ";
 
-$_FILES['userimg']['name'] = $_POST['filename'];
+$_FILES['uploaderimg']['name'] = $_POST['filename'];
 
 var_dump($_FILES);
 

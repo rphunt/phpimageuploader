@@ -10,14 +10,16 @@
 
 <h1>PHP/JS uploader</h1>
 
-<form method="post" action="" id="uploadform" enctype="multipart/form-data">
+<form method="post" action="" id="uploaderform" enctype="multipart/form-data">
 <div id="dropzone"></div>
 
-<input type="file" name="userimg" id="userimg">
-<input type="submit" id="btnupload" name="btnupload" value="Upload Image">
+<label for="uploaderimg">Select Image</label>
+<input type="file" name="uploaderimg" id="uploaderimg">
+<input type="submit" name="uploadersubmit" id="uploadersubmit" value="Upload Image">
+<button id="uploaderreset">Reset</button>
 
 </form>
-<a href=".">reset</a>
+<a href=".">reload</a>
 
 <div id="status"></div>
 
