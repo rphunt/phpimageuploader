@@ -107,18 +107,10 @@ $(document).ready(function() {
 			method: 'POST'
 		})
 		.done(function(resp){
-			console.log('done: '+resp);
-			if (resp.indexOf('ERROR:')!==-1) {
-				uploaderReset(false);
-				var error = $('<p class="error">'+resp+'</p>').appendTo(dropzone);
-				return false;
-			}
+			uploadDone(resp);
 		})
 		.fail(function(xhr){
-			console.log('fail: '+xhr.statusText);
-			uploaderReset(false);
-			var error = $('<p class="error">'+xhr.status+'<br>'+xhr.statusText+'</p>').appendTo(dropzone);
-			return false;
+			uploadFail(xhr);
 		});
 
 	};
@@ -176,5 +168,30 @@ $(document).ready(function() {
 		c(srcFile);
 	};
 
+	/*
+	* Actions on ajax done
+	* If response says file exists,  create buttons for overwrite question
+	*/
+	let uploadDone = (resp) => {
+		console.log('done: '+resp);
+		if (resp.indexOf('ERROR:')>-1) {
+			uploaderReset(false);
+			let error = $('<div class="error"><p>'+resp+'</p></div>').appendTo(dropzone);
+
+			if (resp.indexOf('Overwrite?')>-1) {
+				$('<button>Yes</button>').appendTo(error);
+				$('<button>No</button>').appendTo(error);
+			}
+
+			return false;
+		}
+	};
+
+	let uploadFail = (xhr) => {
+		console.log('fail: '+xhr.statusText);
+		uploaderReset(false);
+		$('<p class="error">'+xhr.status+'<br>'+xhr.statusText+'</p>').appendTo(dropzone);
+		return false;
+	};	
 
 });

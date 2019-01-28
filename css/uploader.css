@@ -20,13 +20,28 @@ h1 {
 	margin-bottom: 1em;
 }
 
+
+/* errors */
+
 .error {
 	background-color: #ffffff;
 	color: #aa4400;
 	padding: 10px;
+	text-align: center;
 }
 
+.error p {
+	color: inherit;
+}
 
+.error button {
+	font-size: 1em;
+	border: solid 1px #999999;
+	padding: .5em;
+	background-color: #cccccc;
+	border-radius: 10px;
+	margin: 0 1em 0 0;
+}
 
 
 /* form */
