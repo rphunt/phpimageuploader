@@ -16,8 +16,6 @@
 <input type="file" name="userimg" id="userimg">
 <input type="submit" id="btnupload" name="btnupload" value="Upload Image">
 
-<input type="text" name="filename" id="filename" value="test string">
-
 </form>
 <a href=".">reset</a>
 
