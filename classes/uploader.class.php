@@ -52,7 +52,8 @@ class imgUploader {
 
 	private function checkPosts() {
 		$this->postVals = array(
-			'filename' => ''
+			'filename' => '',
+			'overwrite' => false
 		);
 
 		foreach ($this->postVals as $postKey => $postVal) {
@@ -129,7 +130,10 @@ class imgUploader {
 
 	private function checkExistingFile() {
 		/* check if file already exists */
-		if (file_exists($this->imgUploadDir.$this->imgLoaded['name'])) {
+		
+		if ($this->postVals['overwrite']) {
+			echo 'overwriting';
+		} else if (file_exists($this->imgUploadDir.$this->imgLoaded['name'])) {
 			$this->error = $this->imgUploadDir.$this->imgLoaded['name']." file already exists. Overwrite?";
 			$this->show_errors(true);
 		}

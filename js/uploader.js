@@ -13,11 +13,16 @@ $(document).ready(function() {
 	let srcFile = null; // set to the file data
 	let endpoint = 'uploader.php'; // endpoint path
 	let filename = []; // key/value for renaming a file
+	let overwrite = []; // key/value for overwriting a file
 	let imgwrap = null;
+	let postFlags = [
+		filename = false,
+		overwrite = false
+	];
 
 	dropzone = $('#dropzone'); // dropzone as element
 
-	c = function(msg) {console.log(msg);}
+	let c = function(msg) {console.log(msg);}
 
 
 	/*** Events ***/
@@ -74,16 +79,20 @@ $(document).ready(function() {
 		e.preventDefault();
 	}
 
-	// 
-	// gallery.on('click', '#overwriteyes', function(e) {
-	// 	e.preventDefault();
-	// 	upload();
-	// });
+	
+	dropzone.on('click', '#overwriteyes', function(e) {
+		e.preventDefault();
+		c('yes');
+		overwrite = ['overwrite', true];
+		postFlags['overwrite'] = true;
+		upload();
+	});
 
-	//when upload form is submitted
-	// gallery.on('click', '#overwriteno', function(e) {
-	// 	e.preventDefault();
-	// });
+
+	dropzone.on('click', '#overwriteno', function(e) {
+		e.preventDefault();
+		c('no');
+	});
 
 
 	/*** Functions ***/
@@ -97,6 +106,7 @@ $(document).ready(function() {
 		let formdata = new FormData();
 		formdata.append('uploaderimg', srcFile);
 		formdata.append(filename[0], filename[1]);
+		if (postFlags['overwrite']) {formdata.append(overwrite[0], overwrite[1])};
 
 		$.ajax({
 			url: endpoint,
@@ -179,8 +189,8 @@ $(document).ready(function() {
 			let error = $('<div class="error"><p>'+resp+'</p></div>').appendTo(dropzone);
 
 			if (resp.indexOf('Overwrite?')>-1) {
-				$('<button>Yes</button>').appendTo(error);
-				$('<button>No</button>').appendTo(error);
+				$('<button id="overwriteyes">Yes</button>').appendTo(error);
+				$('<button id="overwriteno">No</button>').appendTo(error);
 			}
 
 			return false;
