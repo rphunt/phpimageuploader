@@ -12,14 +12,8 @@ $(document).ready(function() {
 	let input = $('#uploaderimg'); // file input as object
 	let srcFile = null; // set to the file data
 	let endpoint = 'uploader.php'; // endpoint path
-	let filename = []; // key/value for renaming a file
-	let overwrite = []; // key/value for overwriting a file
-	let imgwrap = null;
-	let postFlags = [
-		filename = false,
-		overwrite = false
-	];
-
+	let imgwrap = null; // html element where preview data is shown
+	uploadVals = new Array(); // additional fields to send
 	dropzone = $('#dropzone'); // dropzone as element
 
 	let c = function(msg) {console.log(msg);}
@@ -53,9 +47,7 @@ $(document).ready(function() {
 	form.on('submit', function(e) {
 		e.preventDefault();
 		c('submit');
-
-		filename = ['filename', form[0].filename.value];
-
+		uploadVals.push({'name' : 'filename', 'val' : form[0].filename.value});
 		upload();
 	});
 
@@ -82,16 +74,14 @@ $(document).ready(function() {
 	
 	dropzone.on('click', '#overwriteyes', function(e) {
 		e.preventDefault();
-		c('yes');
-		overwrite = ['overwrite', true];
-		postFlags['overwrite'] = true;
+		uploadVals.push({'name' : 'overwrite', 'val' : true});
 		upload();
 	});
 
 
 	dropzone.on('click', '#overwriteno', function(e) {
 		e.preventDefault();
-		c('no');
+		uploaderReset(true)
 	});
 
 
@@ -105,8 +95,12 @@ $(document).ready(function() {
 
 		let formdata = new FormData();
 		formdata.append('uploaderimg', srcFile);
-		formdata.append(filename[0], filename[1]);
-		if (postFlags['overwrite']) {formdata.append(overwrite[0], overwrite[1])};
+
+		/* cycle through extra fields to append */
+		for (i=0; i<uploadVals.length; i++) {
+			formdata.append(uploadVals[i].name, uploadVals[i].val);
+		}
+
 
 		$.ajax({
 			url: endpoint,
@@ -137,6 +131,7 @@ $(document).ready(function() {
 		if (clearVars) {
 			srcFile = null;
 			form[0].reset();
+			uploadVals = [];
 		}
 	};
 

@@ -132,7 +132,7 @@ class imgUploader {
 		/* check if file already exists */
 		
 		if ($this->postVals['overwrite']) {
-			echo 'overwriting';
+			echo 'overwriting'; // testing - delete later
 		} else if (file_exists($this->imgUploadDir.$this->imgLoaded['name'])) {
 			$this->error = $this->imgUploadDir.$this->imgLoaded['name']." file already exists. Overwrite?";
 			$this->show_errors(true);
