@@ -74,6 +74,17 @@ $(document).ready(function() {
 		e.preventDefault();
 	}
 
+	// 
+	// gallery.on('click', '#overwriteyes', function(e) {
+	// 	e.preventDefault();
+	// 	upload();
+	// });
+
+	//when upload form is submitted
+	// gallery.on('click', '#overwriteno', function(e) {
+	// 	e.preventDefault();
+	// });
+
 
 	/*** Functions ***/
 
@@ -84,7 +95,7 @@ $(document).ready(function() {
 	let upload = function() {
 
 		let formdata = new FormData();
-		formdata.append('userimg', srcFile);
+		formdata.append('uploaderimg', srcFile);
 		formdata.append(filename[0], filename[1]);
 
 		$.ajax({
@@ -96,10 +107,18 @@ $(document).ready(function() {
 			method: 'POST'
 		})
 		.done(function(resp){
-			c(resp);
+			console.log('done: '+resp);
+			if (resp.indexOf('ERROR:')!==-1) {
+				uploaderReset(false);
+				var error = $('<p class="error">'+resp+'</p>').appendTo(dropzone);
+				return false;
+			}
 		})
 		.fail(function(xhr){
-			c(xhr.statusText);
+			console.log('fail: '+xhr.statusText);
+			uploaderReset(false);
+			var error = $('<p class="error">'+xhr.status+'<br>'+xhr.statusText+'</p>').appendTo(dropzone);
+			return false;
 		});
 
 	};
@@ -126,13 +145,35 @@ $(document).ready(function() {
 	let display = () => {
 		uploaderReset(false);
 
-		imgwrap = $('<div id="imgwrap"></div>').appendTo(dropzone);
-		$('<input type="text" id="filename" name=""filename" value="'+srcFile.name+'">').appendTo(imgwrap);
-		$('<p>Size: '+srcFile.size+'</p>').appendTo(imgwrap);
 
-		c(srcFile);
+		var reader = new FileReader();
+
+		reader.onload = function (e) {
+
+			/* image object and props */
+			var img = new Image();
+
+			//wait for image to load, then display form
+			img.onload =function() {
+
+				imgwrap = $('<div id="imgwrap"></div>').appendTo(dropzone);
+	        	$('<img>', {'src': img.src, 'id': srcFile.name}).appendTo(imgwrap);
+				$('<input type="text" id="filename" name=""filename" value="'+srcFile.name+'">').appendTo(imgwrap);
+				$('<p>Size: '+srcFile.size+'</p>').appendTo(imgwrap);
+	        	$('<p>Height: '+img.height+'</p>').appendTo(imgwrap);
+	        	$('<p>Width: '+img.width+'</p>').appendTo(imgwrap);
+			};
+
+			// load image
+			img.src = e.target.result;
+
+		};
+
+        reader.readAsDataURL(srcFile);
 
 		$('#uploadersubmit, #uploaderreset').show();
+
+		c(srcFile);
 	};
 
 

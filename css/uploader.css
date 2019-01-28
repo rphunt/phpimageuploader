@@ -1,3 +1,5 @@
+/* general */
+
 * {
 	box-sizing: border-box;
 	margin: 0;
@@ -8,17 +10,99 @@
 }
 
 body {
-	margin: 10px;
+	margin: 20px;
+}
+
+
+h1 {
+	font-size: 1.5em;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+
+.error {
+	background-color: #ffffff;
+	color: #aa4400;
+	padding: 10px;
+}
+
+
+
+
+/* form */
+
+.uploaderbtn {
+	font-size: 1em;
+	border: solid 1px #999999;
+	padding: .5em;
+	background-color: #cccccc;
+	border-radius: 10px;
+	margin: 0 1em 0 0;
+}
+
+
+#uploaderform {
+
 }
 
 #dropzone {
-	width: 200px;
-	height: 200px;
+	width: 400px;
+	min-height: 400px;
 	background-color: #cccccc;
 	border: dashed 4px #999999;
 	margin: 0 0 2em 0;
 }
 
+#uploaderlbl, #uploadersubmit, #uploaderreset {
+
+}
+
 #uploaderimg, #uploadersubmit, #uploaderreset {
 	display: none;
 }
+
+/* image wrapper */
+
+#imgwrap {
+	border: dashed 4px #999999;
+	background-color: #d0d0d0;
+	padding: 10px;
+	width: 80%;
+	height: auto;
+	max-width: 400px;
+	min-height: 400px;
+	margin: 0 0 1em 0;
+	text-align: center;
+}
+
+#imgwrap {
+	width: 100%;
+	padding: 10px;
+	border: solid 1px #999999;
+	background-color: #e0e0e0;
+	margin-bottom: 1em;
+	overflow: hidden;
+}
+
+#imgwrap img {
+	height: 300px;
+	width: 300px;
+	object-fit: contain;
+	padding: 10px;
+	border: solid 1px #999999;
+}
+
+#imgwrap input[type="text"], #imgwrap p {
+	font-size: 1em;
+	background-color: #ffffff;
+	border: solid 1px #999999;
+	padding: .5em;
+	margin: 0 0 1em 0;
+	width: 100%;
+	text-align: left;
+}
+
+#imgwrap p {
+	background-color: transparent;
+}
+
