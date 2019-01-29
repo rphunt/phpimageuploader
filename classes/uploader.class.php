@@ -88,14 +88,15 @@ class imgUploader {
 	private function checkFileTypes() {
 		/* Check the file extensions and the mime types. */
 		$imgPath = pathinfo($this->imgLoaded['name']);
-		$imgExt =  $imgPath['extension'];
+		$imgExt =  strtolower($imgPath['extension']);
+		$imgType = strtolower($this->imgLoaded['type']);
 
 		if (!in_array($imgExt, $this->imgTypes)) {
 			$this->set_error("Please select an image of the type JPG, JPEG, GIF, or PNG.");
 			$this->show_error(true);
 		}
 
-		if (!in_array($this->imgLoaded['type'], $this->imgMime)) {
+		if (!in_array($imgType, $this->imgMime)) {
 			$this->set_error("Please select an image of the type JPG, JPEG, GIF, or PNG.");
 			$this->show_error(true);
 		}

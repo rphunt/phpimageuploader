@@ -147,6 +147,7 @@ $(document).ready(function() {
 	};
 
 	let controlsReset = () => {
+		if (msg) {msg.remove()};
 		$('#uploadersubmit, #uploaderreset').hide();
 	};
 
@@ -173,7 +174,6 @@ $(document).ready(function() {
 	*/
 	let display = () => {
 		uploaderReset(false);
-
 
 		var reader = new FileReader();
 
@@ -214,21 +214,22 @@ $(document).ready(function() {
 	let uploadDone = (resp) => {
 		c('done: '+resp);
 		if (resp.indexOf('ERROR:')>-1) {
+			
+			controlsReset();
+
 			msg = $('<div class="respmsg resperror"><p>'+resp+'</p></div>').appendTo(dropzone);
+			$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 
 			if (resp.indexOf('Overwrite?')>-1) {
 				$('<button id="btnoverwriteyes" class="btndefault">Yes</button>').appendTo(msg);
 				$('<button id="btnoverwriteno" class="btndefault">No</button>').appendTo(msg);
 				$('<button id="btnoverwriteedit" class="btndefault">Edit</button>').appendTo(msg);
 			}
-
-			controlsReset();
-			
+		
 			return false;
 		} else {
 			msg = $('<div class="respmsg"><p>'+resp+'</p></div>').appendTo(dropzone);
 			$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
-			controlsReset();
 		}
 	};
 
