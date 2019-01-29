@@ -11,17 +11,25 @@
 <h1>PHP/JS uploader</h1>
 
 <form method="post" action="" id="uploaderform" enctype="multipart/form-data">
-<div id="dropzone"></div>
+	<div id="dropzone">
+		<div id="imgwrap">
+			<img id="image" src="">
+			<input type="text" id="filename" name=""filename" value="">
+			<p id="size">Size: <span></span></p>
+			<p id="width">Width: <span></span></p>
+			<p id="height">Height: <span></span></p>
+			<button id="btnthumbedit" class="btndefault">Edit Thumbnail</button>
+		</div>
+	</div>
 
 <label for="uploaderimg" id="uploaderlbl"  class="btndefault">Select Image</label>
 <input type="file" name="uploaderimg" id="uploaderimg">
 <input type="submit" name="uploadersubmit" id="uploadersubmit" value="Upload Image"  class="btndefault">
-<button id="uploaderreset"  class="btndefault">Reset</button>
+<button id="uploaderreset" class="btndefault">Reset</button>
 
 </form>
-<a href=".">reload</a>
 
-<div id="status"></div>
+<a href="." class="btndefault">reload</a>
 
 </body>
 </html>

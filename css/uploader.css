@@ -27,6 +27,11 @@ h1 {
 	background-color: #cccccc;
 	border-radius: 10px;
 	margin: 0 1em 0 0;
+	display: inline-block;
+}
+
+.btndefault:hover {
+	background-color: #aaaaaa;
 }
 
 /* errors */
@@ -62,10 +67,11 @@ h1 {
 #dropzone {
 	width: 400px;
 	min-height: 400px;
-	background-color: #cccccc;
+	background-color: #dddddd;
 	border: dashed 4px #999999;
 	margin: 0 0 2em 0;
 	position: relative;
+	padding: 10px;
 }
 
 #uploaderlbl, #uploadersubmit, #uploaderreset {
@@ -79,24 +85,15 @@ h1 {
 /* image wrapper */
 
 #imgwrap {
-	border: dashed 4px #999999;
-	background-color: #d0d0d0;
-	padding: 10px;
-	width: 80%;
+	width: 100%;
 	height: auto;
 	max-width: 400px;
 	min-height: 400px;
-	margin: 0 0 1em 0;
 	text-align: center;
-}
-
-#imgwrap {
-	width: 100%;
-	padding: 10px;
-	border: solid 1px #999999;
 	background-color: #e0e0e0;
-	margin-bottom: 1em;
 	overflow: hidden;
+	background-color: transparent;
+	display: none;
 }
 
 #imgwrap img {

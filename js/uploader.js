@@ -22,9 +22,9 @@ $(document).ready(function() {
 
 	/*** Events ***/
 
-	/* handle file drag and drop event 
-	* assign file data to srcFile 
-	* display file info
+	/* Handle file drag and drop event. 
+	* Assign file data to srcFile.
+	* Display file info.
 	*/
 	dropzone[0].ondrop = (e) => {
 		e.preventDefault();
@@ -32,9 +32,9 @@ $(document).ready(function() {
 		display();
 	}
 
-	/* handle form select button event 
-	* assign file data to srcFile 
-	* display file info
+	/* Handle form select button event.
+	* Assign file data to srcFile.
+	* Display file info.
 	*/
 	input.on('change', function(e) {
 		e.preventDefault();
@@ -43,7 +43,7 @@ $(document).ready(function() {
 	});
 
 	/*
-	* handle form submission
+	* Handle form submission.
 	*/
 	form.on('submit', function(e) {
 		e.preventDefault();
@@ -58,7 +58,7 @@ $(document).ready(function() {
 	});
 
 	/* 
-	* Handle other drag events to have no effect 
+	* Handle other drag events to have no effect.
 	*/
 	document.ondrop = (e) => {
 		e.preventDefault();
@@ -75,12 +75,13 @@ $(document).ready(function() {
 	dropzone.on('click', '#btnoverwriteyes', function(e) {
 		e.preventDefault();
 		uploadVals.push({'name' : 'overwrite', 'val' : true});
+		msg.remove();
 		upload();
 	});
 
-
 	dropzone.on('click', '#btnoverwriteno', function(e) {
 		e.preventDefault();
+		msg.remove();
 		uploaderReset(true)
 	});
 
@@ -92,7 +93,13 @@ $(document).ready(function() {
 
 	dropzone.on('click', '#btnok', function(e) {
 		e.preventDefault();
+		msg.remove();
 		uploaderReset(true)
+	});
+
+	dropzone.on('click', '#btnthumbedit', function(e) {
+		e.preventDefault();
+		msg.remove();
 	});
 
 	/*** Functions ***/
@@ -106,7 +113,7 @@ $(document).ready(function() {
 		let formdata = new FormData();
 		formdata.append('uploaderimg', srcFile);
 
-		/* cycle through extra fields to append */
+		// cycle through extra fields to append
 		for (i=0; i<uploadVals.length; i++) {
 			formdata.append(uploadVals[i].name, uploadVals[i].val);
 		}
@@ -135,9 +142,7 @@ $(document).ready(function() {
 	* variables, and the dropzone back to initial conditions.
 	*/
 	let uploaderReset = (clearVars) => {
-		dropzone.empty();
 		controlsReset();
-
 		if (clearVars) {varsReset();}
 	};
 
@@ -150,6 +155,13 @@ $(document).ready(function() {
 	};
 
 	let varsReset = () => {
+		$('#imgwrap').hide();
+		$('#imgwrap #image').attr('src', '');
+		$('#imgwrap #filename').val('');
+		$('#imgwrap #size span').text('');
+		$('#imgwrap #width span').text('');
+		$('#imgwrap #height span').text('');
+
 		srcFile = null;
 		form[0].reset();
 		uploadVals = [];
@@ -167,18 +179,19 @@ $(document).ready(function() {
 
 		reader.onload = function (e) {
 
-			/* image object and props */
+			// image object and props
 			var img = new Image();
 
-			//wait for image to load, then display form
+			// wait for image to load, then display form.
 			img.onload =function() {
 
-				imgwrap = $('<div id="imgwrap"></div>').appendTo(dropzone);
-	        	$('<img>', {'src': img.src, 'id': srcFile.name}).appendTo(imgwrap);
-				$('<input type="text" id="filename" name=""filename" value="'+srcFile.name+'">').appendTo(imgwrap);
-				$('<p>Size: '+srcFile.size+'</p>').appendTo(imgwrap);
-	        	$('<p>Height: '+img.height+'</p>').appendTo(imgwrap);
-	        	$('<p>Width: '+img.width+'</p>').appendTo(imgwrap);
+	   			$('#imgwrap #image').attr('src', img.src);
+	   			$('#imgwrap #filename').val(srcFile.name);
+	   			$('#imgwrap #size span').text(srcFile.size);
+	   			$('#imgwrap #width span').text(img.width);
+	   			$('#imgwrap #height span').text(img.height);
+	   			$('#imgwrap').show();
+
 			};
 
 			// load image
@@ -188,13 +201,13 @@ $(document).ready(function() {
 
         reader.readAsDataURL(srcFile);
 
-		$('#uploadersubmit, #uploaderreset').show();
+		controlsShow();
 
 		c(srcFile);
 	};
 
 	/*
-	* Actions on ajax done
+	* Actions on ajax done.
 	* If response says file exists,  create buttons for overwrite question.
 	* For normal responses, display OK button.
 	*/
@@ -219,6 +232,10 @@ $(document).ready(function() {
 		}
 	};
 
+	/*
+	* Actions on ajax fail.
+	* Display status info
+	*/
 	let uploadFail = (xhr) => {
 		c('fail: '+xhr.statusText);
 		uploaderReset(false);
