@@ -13,10 +13,11 @@ $(document).ready(function() {
 	let srcFile = null; // set to the file data
 	let endpoint = 'uploader.php'; // endpoint path
 	let imgwrap = null; // html element where preview data is shown
-	uploadVals = new Array(); // additional fields to send
-	dropzone = $('#dropzone'); // dropzone as element
+	let uploadVals = new Array(); // additional fields to send
+	let dropzone = $('#dropzone'); // dropzone as element
+	let msg = null; // message element
 
-	let c = function(msg) {console.log(msg);}
+	let c = function(msg) {console.log(msg);} // console abbreviation
 
 
 	/*** Events ***/
@@ -70,20 +71,28 @@ $(document).ready(function() {
 	dropzone[0].ondragover = (e) => {
 		e.preventDefault();
 	}
-
 	
-	dropzone.on('click', '#overwriteyes', function(e) {
+	dropzone.on('click', '#btnoverwriteyes', function(e) {
 		e.preventDefault();
 		uploadVals.push({'name' : 'overwrite', 'val' : true});
 		upload();
 	});
 
 
-	dropzone.on('click', '#overwriteno', function(e) {
+	dropzone.on('click', '#btnoverwriteno', function(e) {
 		e.preventDefault();
 		uploaderReset(true)
 	});
 
+	dropzone.on('click', '#btnoverwriteedit', function(e) {
+		e.preventDefault();
+		msg.remove();
+	});
+
+	dropzone.on('click', '#btnok', function(e) {
+		e.preventDefault();
+		uploaderReset(true)
+	});
 
 	/*** Functions ***/
 
@@ -175,25 +184,29 @@ $(document).ready(function() {
 
 	/*
 	* Actions on ajax done
-	* If response says file exists,  create buttons for overwrite question
+	* If response says file exists,  create buttons for overwrite question.
+	* For normal responses, display OK button.
 	*/
 	let uploadDone = (resp) => {
-		console.log('done: '+resp);
+		c('done: '+resp);
 		if (resp.indexOf('ERROR:')>-1) {
-			uploaderReset(false);
-			let error = $('<div class="error"><p>'+resp+'</p></div>').appendTo(dropzone);
+			msg = $('<div class="respmsg resperror"><p>'+resp+'</p></div>').appendTo(dropzone);
 
 			if (resp.indexOf('Overwrite?')>-1) {
-				$('<button id="overwriteyes">Yes</button>').appendTo(error);
-				$('<button id="overwriteno">No</button>').appendTo(error);
+				$('<button id="btnoverwriteyes" class="btndefault">Yes</button>').appendTo(msg);
+				$('<button id="btnoverwriteno" class="btndefault">No</button>').appendTo(msg);
+				$('<button id="btnoverwriteedit" class="btndefault">Edit</button>').appendTo(msg);
 			}
 
 			return false;
+		} else {
+			msg = $('<div class="respmsg"><p>'+resp+'</p></div>').appendTo(dropzone);
+				$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 		}
 	};
 
 	let uploadFail = (xhr) => {
-		console.log('fail: '+xhr.statusText);
+		c('fail: '+xhr.statusText);
 		uploaderReset(false);
 		$('<p class="error">'+xhr.status+'<br>'+xhr.statusText+'</p>').appendTo(dropzone);
 		return false;
