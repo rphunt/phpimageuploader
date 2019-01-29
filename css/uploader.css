@@ -71,7 +71,9 @@ h1 {
 	border: dashed 4px #999999;
 	margin: 0 0 2em 0;
 	position: relative;
-	padding: 10px;
+	display: grid;
+	overflow: hidden;
+	box-sizing: content-box;
 }
 
 #uploaderlbl, #uploadersubmit, #uploaderreset {
@@ -84,16 +86,19 @@ h1 {
 
 /* image wrapper */
 
+#imgmain {
+	width: 800px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+}
+
 #imgwrap {
-	width: 100%;
 	height: auto;
-	max-width: 400px;
 	min-height: 400px;
 	text-align: center;
-	background-color: #e0e0e0;
-	overflow: hidden;
 	background-color: transparent;
 	display: none;
+	padding: 10px;
 }
 
 #imgwrap img {
@@ -118,3 +123,35 @@ h1 {
 	background-color: transparent;
 }
 
+#thumb {
+	height: auto;
+	min-height: 400px;
+	text-align: center;
+	background-color: transparent;
+	display: none;
+	padding: 10px;
+
+}
+
+#thumb div {
+	height: 300px;
+	width: 300px;
+	overflow: hidden;
+	margin: 0 auto 1em auto;
+	position: relative;
+}
+
+#thumb #thumbimg {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#thumb #thumbpos {
+	border: solid 1px #999;
+	color: black;
+	background-color: #cccccc;
+	width: auto;
+	padding: .5em;
+	font-size: 1em;
+}

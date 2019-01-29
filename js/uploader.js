@@ -2,7 +2,7 @@
 * JS for php upload page and php endpoint.
 * Ajax consists of POST values and a FILE object.
 * Endpoint should use both sets of data to allow things 
-* like overwrite and rename.
+* like overwrite, resize, and rename.
 */
 $(document).ready(function() {
 
@@ -16,6 +16,8 @@ $(document).ready(function() {
 	let uploadVals = new Array(); // additional fields to send
 	let dropzone = $('#dropzone'); // dropzone as element
 	let msg = null; // message element
+	let thumbSizes = new Array(); // set of values for thumbnail size and position
+	let thumbDim = 300; // size of square thumbnail
 
 	let c = function(msg) {console.log(msg);} // console abbreviation
 
@@ -99,8 +101,18 @@ $(document).ready(function() {
 
 	dropzone.on('click', '#btnthumbedit', function(e) {
 		e.preventDefault();
-		msg.remove();
+		$('#imgmain').css('margin-left', '-400px');
 	});
+
+	dropzone.on('click', '#btnimgback', function(e) {
+		e.preventDefault();
+		$('#imgmain').css('margin-left', '0');
+	});
+
+	$('#thumbpos').on('change', function(e) {
+		thumbPos($(this).val());
+	})
+
 
 	/*** Functions ***/
 
@@ -149,6 +161,7 @@ $(document).ready(function() {
 	let controlsReset = () => {
 		if (msg) {msg.remove()};
 		$('#uploadersubmit, #uploaderreset').hide();
+		$('#imgmain').css('margin-left', '0');
 	};
 
 	let controlsShow = () => {
@@ -156,8 +169,8 @@ $(document).ready(function() {
 	};
 
 	let varsReset = () => {
-		$('#imgwrap').hide();
-		$('#imgwrap #image').attr('src', '');
+		$('#imgwrap, #thumb').hide();
+		$('#imgwrap #image, #thumb #thumbimg').attr('src', '');
 		$('#imgwrap #filename').val('');
 		$('#imgwrap #size span').text('');
 		$('#imgwrap #width span').text('');
@@ -175,22 +188,35 @@ $(document).ready(function() {
 	let display = () => {
 		uploaderReset(false);
 
-		var reader = new FileReader();
+		let reader = new FileReader();
 
 		reader.onload = function (e) {
 
-			// image object and props
-			var img = new Image();
+			// image object
+			let img = new Image();
 
 			// wait for image to load, then display form.
 			img.onload =function() {
 
-	   			$('#imgwrap #image').attr('src', img.src);
+	   			$('#imgwrap #image, #thumb #thumbimg').attr('src', img.src);
 	   			$('#imgwrap #filename').val(srcFile.name);
 	   			$('#imgwrap #size span').text(srcFile.size);
 	   			$('#imgwrap #width span').text(img.width);
 	   			$('#imgwrap #height span').text(img.height);
-	   			$('#imgwrap').show();
+	   			$('#imgwrap, #thumb').show();
+
+
+				// get thumb width and height
+				thumbSizes = thumbResize(img.width, img.height);
+
+	   			// resize thumb
+	   			$('#thumb #thumbimg').css({
+	   				'width': thumbSizes[0],
+	   				'height': thumbSizes[1],
+	   				'left': thumbSizes[2],
+	   				'top': thumbSizes[3]
+	   			});
+
 
 			};
 
@@ -243,5 +269,65 @@ $(document).ready(function() {
 		$('<p class="error">'+xhr.status+'<br>'+xhr.statusText+'</p>').appendTo(dropzone);
 		return false;
 	};	
+
+	/*
+	* set values to resize and reposition thumbnail
+	*/
+	let thumbResize = (wd, ht) => {
+		let aspect = wd/ht;
+		let thumbSizes = new Array();
+		let offsetx, offsety;
+
+		if (aspect<1) {
+			wd = thumbDim;
+			ht = thumbDim/aspect;
+			offsetx = 0; 
+			offsety = (ht-wd)/-2; 
+		} else  {
+			wd = thumbDim * aspect;
+			ht = thumbDim;
+			offsetx = (wd-ht)/-2; 
+			offsety = 0; 
+		}
+
+		thumbSizes.push(wd);
+		thumbSizes.push(ht);
+		thumbSizes.push(offsetx);
+		thumbSizes.push(offsety);
+
+		return thumbSizes;
+	}
+
+	let thumbPos = (pos) => {
+		let left = thumbSizes[2];
+		let top =  thumbSizes[3];
+		switch(pos) {
+			case 'left':
+				left = 0;
+				break;
+			case 'right':
+				left = thumbDim - thumbSizes[0];
+				break;
+			case 'top':
+				top = 0;
+				break;
+			case 'bottom':
+				top = thumbDim - thumbSizes[1]
+				break;
+			default :
+				left = thumbSizes[2];
+				top =  thumbSizes[3];
+		};
+
+		thumbSizes[2] = left;
+		thumbSizes[3] = top;
+
+		// reposition thumb
+		$('#thumb #thumbimg').css({
+			'left': thumbSizes[2],
+			'top': thumbSizes[3]
+		});
+
+	};
 
 });
