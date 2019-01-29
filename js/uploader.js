@@ -87,6 +87,7 @@ $(document).ready(function() {
 	dropzone.on('click', '#btnoverwriteedit', function(e) {
 		e.preventDefault();
 		msg.remove();
+		controlsShow();
 	});
 
 	dropzone.on('click', '#btnok', function(e) {
@@ -130,18 +131,28 @@ $(document).ready(function() {
 
 
 	/*
-	* Set uploader back to initial conditions
-	* clearVars is set to also initialize values.
+	* Functions to reset the form controls,
+	* variables, and the dropzone back to initial conditions.
 	*/
 	let uploaderReset = (clearVars) => {
 		dropzone.empty();
-		$('#uploadersubmit, #uploaderreset').hide();
+		controlsReset();
 
-		if (clearVars) {
-			srcFile = null;
-			form[0].reset();
-			uploadVals = [];
-		}
+		if (clearVars) {varsReset();}
+	};
+
+	let controlsReset = () => {
+		$('#uploadersubmit, #uploaderreset').hide();
+	};
+
+	let controlsShow = () => {
+		$('#uploadersubmit, #uploaderreset').show();
+	};
+
+	let varsReset = () => {
+		srcFile = null;
+		form[0].reset();
+		uploadVals = [];
 	};
 
 	/*
@@ -198,10 +209,13 @@ $(document).ready(function() {
 				$('<button id="btnoverwriteedit" class="btndefault">Edit</button>').appendTo(msg);
 			}
 
+			controlsReset();
+			
 			return false;
 		} else {
 			msg = $('<div class="respmsg"><p>'+resp+'</p></div>').appendTo(dropzone);
-				$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
+			$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
+			controlsReset();
 		}
 	};
 

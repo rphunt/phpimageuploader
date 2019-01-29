@@ -11,7 +11,8 @@ class imgUploader {
 	private $imgMax = 2000000; //largest file size allowed
 	private $imgTypes = array('jpg', 'jpeg', 'png', 'gif'); //file extensions allowed 
 	private $imgMime = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif'); //file mime types allowed
-	private $error = ''; //error message to be displayed
+	private $errors = ''; //errors message to be displayed
+	private $msgs = ''; // messages to be displayed
 	private $phpFileUploadErrors = array( //file upload errors captions
 	    0 => 'The file uploaded successfully',
 	    1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
@@ -69,10 +70,10 @@ class imgUploader {
 		* check if posted filename  exists, use that name instead
 		*/
 		if (!isset($this->files['uploaderimg'])) {
-			$this->error = 'Ths page was accessed incorrectly.';
+			$this->set_errors('Ths page was accessed incorrectly.');
 			$this->show_errors(true);
 		} else if (!isset($this->files[$this->uploadField]['name'])) {
-			$this->error = 'Upload is incorrectly formatted. Note, only one file is accepted at a time.';
+			$this->set_errors('Upload is incorrectly formatted. Note, only one file is accepted at a time.');
 			$this->show_errors(true);
 		} else {
 			$this->imgLoaded = $this->files['uploaderimg'];
@@ -90,12 +91,12 @@ class imgUploader {
 		$imgExt =  $imgPath['extension'];
 
 		if (!in_array($imgExt, $this->imgTypes)) {
-			$this->error = "Please select an image of the type JPG, JPEG, GIF, or PNG.";
+			$this->set_errors("Please select an image of the type JPG, JPEG, GIF, or PNG.");
 			$this->show_errors(true);
 		}
 
 		if (!in_array($this->imgLoaded['type'], $this->imgMime)) {
-			$this->error = "Please select an image of the type JPG, JPEG, GIF, or PNG.";
+			$this->set_errors("Please select an image of the type JPG, JPEG, GIF, or PNG.");
 			$this->show_errors(true);
 		}
 
@@ -106,7 +107,7 @@ class imgUploader {
 		/* check if the destiination folder exists, create it if not */
 		if (!file_exists($this->imgUploadDir)) {
 			if (!mkdir($this->imgUploadDir )) {
-				$this->error = "Could not create upload folder.";
+				$this->set_errors("Could not create upload folder.");
 				$this->show_errors(true);
 			}
 		}
@@ -115,7 +116,7 @@ class imgUploader {
 	private function checkFileErrors() {
 		/* check for file upload errors */
 		if ($this->imgLoaded['error']>0) {
-			$this->error = $this->phpFileUploadErrors[$this->imgLoaded['error']];
+			$this->set_errors($this->phpFileUploadErrors[$this->imgLoaded['error']]);
 			$this->show_errors(true);
 		}
 	}
@@ -123,7 +124,7 @@ class imgUploader {
 	private function checkFileSize() {
 		/* check for excessive file size */
 		if ($this->imgLoaded['size']>$this->imgMax) {
-			$this->error = "The maximum file size allowed is ".$this->imgMax.".";
+			$this->set_errors("The maximum file size allowed is ".$this->imgMax.".");
 			$this->show_errors(true);
 		}
 	}
@@ -132,11 +133,20 @@ class imgUploader {
 		/* check if file already exists */
 		
 		if ($this->postVals['overwrite']) {
-			echo 'overwriting'; // testing - delete later
+			$this->set_msgs('Overwriting.'); // testing - delete later
+			$this->show_msgs();
 		} else if (file_exists($this->imgUploadDir.$this->imgLoaded['name'])) {
-			$this->error = $this->imgUploadDir.$this->imgLoaded['name']." file already exists. Overwrite?";
+			$this->set_errors('<strong>'.$this->imgUploadDir.$this->imgLoaded['name']."</strong><br>file already exists. Overwrite?");
 			$this->show_errors(true);
 		}
+	}
+
+	private function set_errors($error='') {
+		$this->errors =  ($this->errors!='') ? '<br>'.$error : $error;
+	}
+
+	private function set_msgs($msg='') {
+		$this->msgs =  ($this->msgs!='') ? '<br>'.$msg : $msg;
 	}
 
 	private function show_errors($kill = false) {
@@ -144,16 +154,24 @@ class imgUploader {
 		* note, messages with 'ERROR:' in them are intended to be displayed by ajax 
 		* if kill is set to true, stop script taht called this 
 		*/
-		echo 'ERROR: '.$this->error;
+		echo 'ERROR: '.$this->errors;
 		if ($kill) {die();}
+	}
+
+	private function show_msgs() {
+		/* 
+		* display messages 
+		*/
+		echo $this->msgs;
 	}
 
 	private function imgSave() {
 		/* move temp files to destination folder */
 		if (move_uploaded_file($this->imgLoaded['tmp_name'], $this->imgUploadDir.$this->imgLoaded['name'])) {
-			echo "Upload complete";
+			$this->set_msgs("Upload complete");
+			$this->show_msgs();
 		} else {
-			$this->error = "There was a problem saving the file on the server.";
+			$this->set_errors("There was a problem saving the file on the server.");
 			$this->show_errors(true);
 		}
 	}
