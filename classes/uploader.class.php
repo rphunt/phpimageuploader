@@ -214,12 +214,20 @@ class imgUploader {
 
 	private function imageResizing(){
 
-		/*** handle overwrite ***/
+		/*** to do: handle overwrite ***/
 		
 		if ($this->imgTmp!=NULL) {
 
 			$imgBase =  strtolower($this->imgPath['basename']);
-			$imgScaled800 = imagescale($this->imgTmp, 800);
+			$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
+
+			if ($aspect<1) {
+
+				$imgScaled800 = imagescale($this->imgTmp, (800 * $aspect));
+			} else {
+				$imgScaled800 = imagescale($this->imgTmp, 800);
+			}
+
 			
 			/* save scaled images as jpg */
 			imagejpeg($imgScaled800, $this->imgUploadDir.$imgBase.'-800.jpg', 90);
@@ -228,7 +236,7 @@ class imgUploader {
 
 	private function makeThumb() {
 
-		/*** handle overwrite ***/
+		/*** to do: handle overwrite ***/
 
 
 		if ($this->imgTmp!=NULL) {
