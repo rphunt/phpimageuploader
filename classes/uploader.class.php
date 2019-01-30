@@ -15,7 +15,7 @@ class imgUploader {
 	private $imgScaledLarge = NULL; // resized image
 	private $imgScaledThumb = NULL; // resized thumb
 	private $imgPath = ''; //file path information
-	private $imgBase = ''; //filename to use for saved files
+	private $imgFilename = ''; //filename to use for saved files
 	private $errors = ''; //errors message to be displayed
 	private $msgs = ''; // messages to be displayed
 	private $phpFileUploadErrors = array( //file upload errors captions
@@ -86,6 +86,9 @@ class imgUploader {
 			
 			if($this->postVals['filename']!='') {
 				$this->imgLoaded['name'] = $this->postVals['filename'];
+				
+				$this->imgPath = pathinfo($this->imgLoaded['name']);
+				$this->imgFilename = strtolower($this->imgPath['filename']);
 			}
 		}
 	}
@@ -93,8 +96,6 @@ class imgUploader {
 
 	private function checkFileTypes() {
 		/* Check the file extensions and the mime types. */
-		$this->imgPath = pathinfo($this->imgLoaded['name']);
-		$this->imgBase = strtolower($this->imgPath['basename']);
 		$imgExt =  strtolower($this->imgPath['extension']);
 		$imgType = strtolower($this->imgLoaded['type']);
 
@@ -257,7 +258,7 @@ class imgUploader {
 		/* to do: handle overwrites */
 
 		/* Save scaled large image */
-		if (imagejpeg($this->imgScaledLarge, $this->imgUploadDir.$this->imgBase.'.jpg', 90)) {
+		if (imagejpeg($this->imgScaledLarge, $this->imgUploadDir.$this->imgFilename.'.jpg', 90)) {
 			$this->set_msg("Large upload complete");
 			$this->show_msg();
 		} else {
@@ -266,7 +267,7 @@ class imgUploader {
 		}
 
 		/* Save scaled thumb image */
-		if (imagejpeg($this->imgScaledThumb, $this->imgUploadDir.$this->imgBase.'-thumb.jpg', 90)) {
+		if (imagejpeg($this->imgScaledThumb, $this->imgUploadDir.$this->imgFilename.'-thumb.jpg', 90)) {
 			$this->set_msg("Thumb upload complete");
 			$this->show_msg();
 		} else {
