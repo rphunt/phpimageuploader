@@ -16,7 +16,7 @@ $(document).ready(function() {
 	let uploadVals = new Array(); // additional fields to send
 	let dropzone = $('#dropzone'); // dropzone as element
 	let msg = null; // message element
-	let thumbSizes = new Array(); // set of values for thumbnail size and position
+	let thumbSizes = {}; // set of values for thumbnail
 	let thumbDim = 300; // size of square thumbnail
 
 	let c = function(msg) {console.log(msg);} // console abbreviation
@@ -211,10 +211,10 @@ $(document).ready(function() {
 
 	   			// resize thumb
 	   			$('#thumb #thumbimg').css({
-	   				'width': thumbSizes[0],
-	   				'height': thumbSizes[1],
-	   				'left': thumbSizes[2],
-	   				'top': thumbSizes[3]
+	   				'width': thumbSizes.width,
+	   				'height': thumbSizes.height,
+	   				'left': thumbSizes.x,
+	   				'top': thumbSizes.y
 	   			});
 
 
@@ -273,9 +273,9 @@ $(document).ready(function() {
 	/*
 	* set values to resize and reposition thumbnail
 	*/
+
 	let thumbResize = (wd, ht) => {
 		let aspect = wd/ht;
-		let thumbSizes = new Array();
 		let offsetx, offsety;
 
 		if (aspect<1) {
@@ -290,42 +290,41 @@ $(document).ready(function() {
 			offsety = 0; 
 		}
 
-		thumbSizes.push(wd);
-		thumbSizes.push(ht);
-		thumbSizes.push(offsetx);
-		thumbSizes.push(offsety);
+		thumbSizes.width = wd;
+		thumbSizes.height = ht;
+		thumbSizes.x = offsetx;
+		thumbSizes.y = offsety;
+
+		c(thumbSizes);
 
 		return thumbSizes;
 	}
 
 	let thumbPos = (pos) => {
-		let left = thumbSizes[2];
-		let top =  thumbSizes[3];
+		let left = thumbSizes.x;
+		let top =  thumbSizes.y;
 		switch(pos) {
 			case 'left':
 				left = 0;
 				break;
 			case 'right':
-				left = thumbDim - thumbSizes[0];
+				left = thumbDim - thumbSizes.width;
 				break;
 			case 'top':
 				top = 0;
 				break;
 			case 'bottom':
-				top = thumbDim - thumbSizes[1]
+				top = thumbDim - thumbSizes.height;
 				break;
 			default :
-				left = thumbSizes[2];
-				top =  thumbSizes[3];
+				left = thumbSizes.x;
+				top =  thumbSizes.y;
 		};
-
-		thumbSizes[2] = left;
-		thumbSizes[3] = top;
 
 		// reposition thumb
 		$('#thumb #thumbimg').css({
-			'left': thumbSizes[2],
-			'top': thumbSizes[3]
+			'left': left,
+			'top': top
 		});
 
 	};
