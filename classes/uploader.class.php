@@ -86,7 +86,7 @@ class imgUploader {
 			
 			if($this->postVals['filename']!='') {
 				$this->imgLoaded['name'] = $this->postVals['filename'];
-				
+
 				$this->imgPath = pathinfo($this->imgLoaded['name']);
 				$this->imgFilename = strtolower($this->imgPath['filename']);
 			}
@@ -210,7 +210,7 @@ class imgUploader {
 	private function imageResizing(){
 
 		if (imagesx($this->imgTmp) < 800 && imagesy($this->imgTmp) < 800) {
-			$this->mgScaledLarge = $this->imgTmp;
+			$this->imgScaledLarge = $this->imgTmp;
 			return;
 		}
 
@@ -219,7 +219,7 @@ class imgUploader {
 		/* Based on aspect ratio, either width 800 or maximum height 800 */
 		if ($aspect<1) {
 
-			$this->mgScaledLarge = imagescale($this->imgTmp, (800 * $aspect));
+			$this->imgScaledLarge = imagescale($this->imgTmp, (800 * $aspect));
 		} else {
 			$this->imgScaledLarge = imagescale($this->imgTmp, 800);
 		}
