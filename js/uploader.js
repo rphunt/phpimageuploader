@@ -10,14 +10,16 @@ $(document).ready(function() {
 
 	let form = $('#uploaderform'); // form as object
 	let input = $('#uploaderimg'); // file input as object
-	let srcFile = null; // set to the file data
 	let endpoint = 'uploader.php'; // endpoint path
-	let imgwrap = null; // html element where preview data is shown
-	let uploadVals = new Array(); // additional fields to send
 	let dropzone = $('#dropzone'); // dropzone as element
+	let srcFile = null; // set to the file data
 	let msg = null; // message element
 	let thumbSizes = {}; // set of values for thumbnail
 	let thumbDim = 300; // size of square thumbnail
+	let cropx = 0;
+	let cropy = 0;
+	let filename = '';
+	let overwrite = false;
 
 	let c = function(msg) {console.log(msg);} // console abbreviation
 
@@ -50,7 +52,7 @@ $(document).ready(function() {
 	form.on('submit', function(e) {
 		e.preventDefault();
 		c('submit');
-		uploadVals.push({'name' : 'filename', 'val' : form[0].filename.value});
+		filename =  form[0].filename.value;
 		upload();
 	});
 
@@ -76,7 +78,7 @@ $(document).ready(function() {
 	
 	dropzone.on('click', '#btnoverwriteyes', function(e) {
 		e.preventDefault();
-		uploadVals.push({'name' : 'overwrite', 'val' : true});
+		overwrite =  true;
 		msg.remove();
 		upload();
 	});
@@ -124,12 +126,11 @@ $(document).ready(function() {
 
 		let formdata = new FormData();
 		formdata.append('uploaderimg', srcFile);
-
-		// cycle through extra fields to append
-		for (i=0; i<uploadVals.length; i++) {
-			formdata.append(uploadVals[i].name, uploadVals[i].val);
-		}
-
+		formdata.append('filename', filename);
+		formdata.append('cropx', cropx);
+		formdata.append('cropy', cropy);
+		formdata.append('thumbdim', thumbDim);
+		formdata.append('overwrite', overwrite);
 
 		$.ajax({
 			url: endpoint,
@@ -178,7 +179,7 @@ $(document).ready(function() {
 
 		srcFile = null;
 		form[0].reset();
-		uploadVals = [];
+		overwrite = false;
 	};
 
 	/*
@@ -209,14 +210,16 @@ $(document).ready(function() {
 				// get thumb width and height
 				thumbSizes = thumbResize(img.width, img.height);
 
+				cropx = thumbSizes.x;
+				cropy = thumbSizes.y;
+
 	   			// resize thumb
 	   			$('#thumb #thumbimg').css({
 	   				'width': thumbSizes.width,
 	   				'height': thumbSizes.height,
-	   				'left': thumbSizes.x,
-	   				'top': thumbSizes.y
+	   				'left': cropx,
+	   				'top': cropy
 	   			});
-
 
 			};
 
@@ -228,8 +231,6 @@ $(document).ready(function() {
         reader.readAsDataURL(srcFile);
 
 		controlsShow();
-
-		c(srcFile);
 	};
 
 	/*
@@ -244,12 +245,13 @@ $(document).ready(function() {
 			controlsReset();
 
 			msg = $('<div class="respmsg resperror"><p>'+resp+'</p></div>').appendTo(dropzone);
-			$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 
 			if (resp.indexOf('Overwrite?')>-1) {
 				$('<button id="btnoverwriteyes" class="btndefault">Yes</button>').appendTo(msg);
 				$('<button id="btnoverwriteno" class="btndefault">No</button>').appendTo(msg);
 				$('<button id="btnoverwriteedit" class="btndefault">Edit</button>').appendTo(msg);
+			} else {
+				$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 			}
 		
 			return false;
@@ -264,7 +266,7 @@ $(document).ready(function() {
 	* Display status info
 	*/
 	let uploadFail = (xhr) => {
-		c('fail: '+xhr.statusText);
+		c('fail: '+xhr);
 		uploaderReset(false);
 		$('<p class="error">'+xhr.status+'<br>'+xhr.statusText+'</p>').appendTo(dropzone);
 		return false;
@@ -292,39 +294,40 @@ $(document).ready(function() {
 
 		thumbSizes.width = wd;
 		thumbSizes.height = ht;
-		thumbSizes.x = offsetx;
-		thumbSizes.y = offsety;
-
-		c(thumbSizes);
+		thumbSizes.x = parseInt(offsetx);
+		thumbSizes.y = parseInt(offsety);
 
 		return thumbSizes;
 	}
 
 	let thumbPos = (pos) => {
-		let left = thumbSizes.x;
-		let top =  thumbSizes.y;
+		cropx = thumbSizes.x;
+		cropy =  thumbSizes.y;
 		switch(pos) {
 			case 'left':
-				left = 0;
+				cropx = 0;
 				break;
 			case 'right':
-				left = thumbDim - thumbSizes.width;
+				cropx = thumbDim - thumbSizes.width;
 				break;
 			case 'top':
-				top = 0;
+				cropy = 0;
 				break;
 			case 'bottom':
-				top = thumbDim - thumbSizes.height;
+				cropy = thumbDim - thumbSizes.height;
 				break;
 			default :
-				left = thumbSizes.x;
-				top =  thumbSizes.y;
+				cropx = thumbSizes.x;
+				cropy =  thumbSizes.y;
 		};
+
+		cropx = parseInt(cropx);
+		cropy = parseInt(cropy);
 
 		// reposition thumb
 		$('#thumb #thumbimg').css({
-			'left': left,
-			'top': top
+			'left': cropx,
+			'top': cropy
 		});
 
 	};
