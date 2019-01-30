@@ -212,6 +212,9 @@ class imgUploader {
 	}
 
 
+	/*
+	* Default resizing to 800.
+	*/
 	private function imageResizing(){
 
 		/*** to do: handle overwrite ***/
@@ -221,6 +224,8 @@ class imgUploader {
 			$imgBase =  strtolower($this->imgPath['basename']);
 			$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
 
+			
+			/* either maximum width 800 or maximum height 800 */
 			if ($aspect<1) {
 
 				$imgScaled800 = imagescale($this->imgTmp, (800 * $aspect));
@@ -234,6 +239,10 @@ class imgUploader {
 		}
 	}
 
+
+	/*
+	* Default thumbnail cropping to square and resizing to 300.
+	*/
 	private function makeThumb() {
 
 		/*** to do: handle overwrite ***/
@@ -242,24 +251,23 @@ class imgUploader {
 		if ($this->imgTmp!=NULL) {
 
 			$imgBase =  strtolower($this->imgPath['basename']);
-
 			$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
 
+			/* Height and width based on aspect ratio. */
 			if ($aspect<1) {
 				$squareval = imagesx($this->imgTmp); 
 			} else {
 				$squareval = imagesy($this->imgTmp);
 			}
 
+			/* Top and left amount to crop, using the offset supplied in posted offsets */
 			$offsetx = $squareval * $this->postVals['cropx'];
 			$offsety = $squareval * $this->postVals['cropy'];
 
-			echo 'x: '.$offsetx.'  ';
-			echo 'y: '.$offsety.'  ';
-
-
+			/* Crop the thumbnail to a square at full size. */
 			$imgCrop = imagecrop($this->imgTmp, ['x'=>$offsetx, 'y'=>$offsety, 'width'=>$squareval, 'height'=>$squareval]);
 
+			/* Scale thumbnail down to 300 */
 			$thumbDim = $this->postVals['thumbdim'];
 			$imgScaled300 = imagescale($imgCrop, $thumbDim);
 			imagejpeg($imgScaled300, $this->imgUploadDir.$imgBase.'-'.$thumbDim.'.jpg', 90);
