@@ -12,7 +12,10 @@ class imgUploader {
 	private $imgTypes = array('jpg', 'jpeg', 'png', 'gif'); //file extensions allowed 
 	private $imgMime = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif'); //file mime types allowed
 	private $imgTmp = ''; // temp image for resizing and cropping
+	private $imgScaledLarge = NULL; // resized image
+	private $imgScaledThumb = NULL; // resized thumb
 	private $imgPath = ''; //file path information
+	private $imgBase = ''; //filename to use for saved files
 	private $errors = ''; //errors message to be displayed
 	private $msgs = ''; // messages to be displayed
 	private $phpFileUploadErrors = array( //file upload errors captions
@@ -52,11 +55,10 @@ class imgUploader {
 		$this->checkFileTypes();
 		$this->checkFileSize();
 		$this->checkFileErrors();
-		$this->checkExistingFile();
-		$this->imgSave();
 		$this->tempImage();
 		$this->imageResizing();
 		$this->makeThumb();	
+		$this->imgSave();
 	} 
 
 	private function checkPosts() {
@@ -92,6 +94,7 @@ class imgUploader {
 	private function checkFileTypes() {
 		/* Check the file extensions and the mime types. */
 		$this->imgPath = pathinfo($this->imgLoaded['name']);
+		$this->imgBase = strtolower($this->imgPath['basename']);
 		$imgExt =  strtolower($this->imgPath['extension']);
 		$imgType = strtolower($this->imgLoaded['type']);
 
@@ -157,7 +160,7 @@ class imgUploader {
 	}
 
 	private function show_error($kill = false) {
-		/* display errors 
+		/* Display errors. 
 		* Note, messages with 'ERROR:' in them are intended to be displayed by ajax. 
 		* If kill is set to true, stop script that called this.
 		*/
@@ -172,23 +175,11 @@ class imgUploader {
 		echo $this->msgs;
 	}
 
-	private function imgSave() {
-		/* Move temp files to destination folder */
-		if (move_uploaded_file($this->imgLoaded['tmp_name'], $this->imgUploadDir.$this->imgLoaded['name'])) {
-			$this->set_msg("Upload complete");
-			$this->show_msg();
-		} else {
-			$this->set_error("There was a problem saving the file on the server.");
-			$this->show_error(true);
-		}
-	}
-
-
 	private function tempImage() {
 
 		/* check file type to create a temp image */
 
-		$savedImg = $this->imgUploadDir.$this->imgLoaded['name'];
+		$savedImg = $this->imgLoaded['tmp_name'];
 
 		switch($this->imgLoaded['type']) {
 			case "image/png":
@@ -217,25 +208,19 @@ class imgUploader {
 	*/
 	private function imageResizing(){
 
-		/*** to do: handle overwrite ***/
+		if (imagesx($this->imgTmp) < 800 && imagesy($this->imgTmp) < 800) {
+			$this->mgScaledLarge = $this->imgTmp;
+			return;
+		}
+
+		$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
 		
-		if ($this->imgTmp!=NULL) {
+		/* Based on aspect ratio, either width 800 or maximum height 800 */
+		if ($aspect<1) {
 
-			if (imagesx($this->imgTmp) < 800 && imagesy($this->imgTmp) < 800) {return;}
-
-			$imgBase =  strtolower($this->imgPath['basename']);
-			$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
-			
-			/* Based on aspect ratio, either width 800 or maximum height 800 */
-			if ($aspect<1) {
-
-				$imgScaled800 = imagescale($this->imgTmp, (800 * $aspect));
-			} else {
-				$imgScaled800 = imagescale($this->imgTmp, 800);
-			}
-			
-			/* save scaled images as jpg */
-			imagejpeg($imgScaled800, $this->imgUploadDir.$imgBase.'-800.jpg', 90);
+			$this->mgScaledLarge = imagescale($this->imgTmp, (800 * $aspect));
+		} else {
+			$this->imgScaledLarge = imagescale($this->imgTmp, 800);
 		}
 	}
 
@@ -245,34 +230,50 @@ class imgUploader {
 	*/
 	private function makeThumb() {
 
-		/*** to do: handle overwrite ***/
+		$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
 
-
-		if ($this->imgTmp!=NULL) {
-
-			$imgBase =  strtolower($this->imgPath['basename']);
-			$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
-
-			/* Height and width based on aspect ratio. */
-			if ($aspect<1) {
-				$squareval = imagesx($this->imgTmp); 
-			} else {
-				$squareval = imagesy($this->imgTmp);
-			}
-
-			/* Top and left amount to crop, using the offset supplied in posted offsets */
-			$offsetx = $squareval * $this->postVals['cropx'];
-			$offsety = $squareval * $this->postVals['cropy'];
-
-			/* Crop the thumbnail to a square at full size. */
-			$imgCrop = imagecrop($this->imgTmp, ['x'=>$offsetx, 'y'=>$offsety, 'width'=>$squareval, 'height'=>$squareval]);
-
-			/* Scale thumbnail down to 300 */
-			$thumbDim = $this->postVals['thumbdim'];
-			$imgScaled300 = imagescale($imgCrop, $thumbDim);
-			imagejpeg($imgScaled300, $this->imgUploadDir.$imgBase.'-'.$thumbDim.'.jpg', 90);
-
+		/* Height and width based on aspect ratio. */
+		if ($aspect<1) {
+			$squareval = imagesx($this->imgTmp); 
+		} else {
+			$squareval = imagesy($this->imgTmp);
 		}
+
+		/* Top and left amount to crop, using the offset supplied in posted offsets */
+		$offsetx = $squareval * $this->postVals['cropx'];
+		$offsety = $squareval * $this->postVals['cropy'];
+
+		/* Crop the thumbnail to a square at full size. */
+		$imgCrop = imagecrop($this->imgTmp, ['x'=>$offsetx, 'y'=>$offsety, 'width'=>$squareval, 'height'=>$squareval]);
+
+		/* Scale thumbnail down to thumb */
+		$thumbDim = $this->postVals['thumbdim'];
+		$this->imgScaledThumb = imagescale($imgCrop, $thumbDim);
+
+	}
+
+	private function imgSave() {
+
+		/* to do: handle overwrites */
+
+		/* Save scaled large image */
+		if (imagejpeg($this->imgScaledLarge, $this->imgUploadDir.$this->imgBase.'.jpg', 90)) {
+			$this->set_msg("Large upload complete");
+			$this->show_msg();
+		} else {
+			$this->set_error("There was a problem saving the large file on the server.");
+			$this->show_error(false);
+		}
+
+		/* Save scaled thumb image */
+		if (imagejpeg($this->imgScaledThumb, $this->imgUploadDir.$this->imgBase.'-thumb.jpg', 90)) {
+			$this->set_msg("Thumb upload complete");
+			$this->show_msg();
+		} else {
+			$this->set_error("There was a problem saving the thumb file on the server.");
+			$this->show_error(true);
+		}
+
 	}
 
 }
