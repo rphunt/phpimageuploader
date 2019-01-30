@@ -221,18 +221,18 @@ class imgUploader {
 		
 		if ($this->imgTmp!=NULL) {
 
+			if (imagesx($this->imgTmp) < 800 && imagesy($this->imgTmp) < 800) {return;}
+
 			$imgBase =  strtolower($this->imgPath['basename']);
 			$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
-
 			
-			/* either maximum width 800 or maximum height 800 */
+			/* Based on aspect ratio, either width 800 or maximum height 800 */
 			if ($aspect<1) {
 
 				$imgScaled800 = imagescale($this->imgTmp, (800 * $aspect));
 			} else {
 				$imgScaled800 = imagescale($this->imgTmp, 800);
 			}
-
 			
 			/* save scaled images as jpg */
 			imagejpeg($imgScaled800, $this->imgUploadDir.$imgBase.'-800.jpg', 90);
