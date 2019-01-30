@@ -11,6 +11,8 @@ class imgUploader {
 	private $imgMax = 2000000; //largest file size allowed
 	private $imgTypes = array('jpg', 'jpeg', 'png', 'gif'); //file extensions allowed 
 	private $imgMime = array('image/jpg', 'image/jpeg', 'image/png', 'image/gif'); //file mime types allowed
+	private $imgTmp = ''; // temp image for resizing and cropping
+	private $imgPath = ''; //file path information
 	private $errors = ''; //errors message to be displayed
 	private $msgs = ''; // messages to be displayed
 	private $phpFileUploadErrors = array( //file upload errors captions
@@ -24,7 +26,11 @@ class imgUploader {
 	    8 => 'A PHP extension stopped the file upload.',
 	);
 	private $postVals = array( // posted values to load into local araray
-			'filename' => ''
+			'filename' => '',
+			'overwrite' => '',
+			'cropx' => 0,
+			'cropy' => 0,
+			'thumbdim' => 0
 		);
 
 
@@ -46,16 +52,14 @@ class imgUploader {
 		$this->checkFileTypes();
 		$this->checkFileSize();
 		$this->checkFileErrors();
-		$this->checkExistingFile();		
+		$this->checkExistingFile();
 		$this->imgSave();
-		$this->imgResizing();
+		$this->tempImage();
+		$this->imageResizing();
+		$this->makeThumb();	
 	} 
 
 	private function checkPosts() {
-		$this->postVals = array(
-			'filename' => '',
-			'overwrite' => false
-		);
 
 		foreach ($this->postVals as $postKey => $postVal) {
 			if (isset($_POST[$postKey]) && (trim($_POST[$postKey])!='')) {
@@ -87,8 +91,8 @@ class imgUploader {
 
 	private function checkFileTypes() {
 		/* Check the file extensions and the mime types. */
-		$imgPath = pathinfo($this->imgLoaded['name']);
-		$imgExt =  strtolower($imgPath['extension']);
+		$this->imgPath = pathinfo($this->imgLoaded['name']);
+		$imgExt =  strtolower($this->imgPath['extension']);
 		$imgType = strtolower($this->imgLoaded['type']);
 
 		if (!in_array($imgExt, $this->imgTypes)) {
@@ -179,8 +183,80 @@ class imgUploader {
 		}
 	}
 
-	private function imgResizing(){
 
+	private function tempImage() {
+
+		/* check file type to create a temp image */
+
+		$savedImg = $this->imgUploadDir.$this->imgLoaded['name'];
+
+		switch($this->imgLoaded['type']) {
+			case "image/png":
+				$this->imgTmp = imagecreatefrompng($savedImg);
+				break;
+			case "image/jpeg":
+				$this->imgTmp = imagecreatefromjpeg($savedImg);
+				break;	
+			case "image/gif":
+				$this->imgTmp = imagecreatefromgif($savedImg);
+				break;			
+			case "image/bmp":
+				$this->imgTmp = imagecreatefrombmp($savedImg);
+				break;			
+			case "image/jpg":
+				$this->imgTmp = imagecreatefromjpeg($savedImg);
+				break;
+			default:
+				$this->imgTmp = NULL;		
+		}
+	}
+
+
+	private function imageResizing(){
+
+		/*** handle overwrite ***/
+		
+		if ($this->imgTmp!=NULL) {
+
+			$imgBase =  strtolower($this->imgPath['basename']);
+			$imgScaled800 = imagescale($this->imgTmp, 800);
+			
+			/* save scaled images as jpg */
+			imagejpeg($imgScaled800, $this->imgUploadDir.$imgBase.'-800.jpg', 90);
+		}
+	}
+
+	private function makeThumb() {
+
+		/*** handle overwrite ***/
+
+
+		if ($this->imgTmp!=NULL) {
+
+			$imgBase =  strtolower($this->imgPath['basename']);
+
+			$aspect = (imagesx($this->imgTmp) / imagesy($this->imgTmp));
+
+			if ($aspect<1) {
+				$squareval = imagesx($this->imgTmp); 
+			} else {
+				$squareval = imagesy($this->imgTmp);
+			}
+
+			$offsetx = $squareval * $this->postVals['cropx'];
+			$offsety = $squareval * $this->postVals['cropy'];
+
+			echo 'x: '.$offsetx.'  ';
+			echo 'y: '.$offsety.'  ';
+
+
+			$imgCrop = imagecrop($this->imgTmp, ['x'=>$offsetx, 'y'=>$offsety, 'width'=>$squareval, 'height'=>$squareval]);
+
+			$thumbDim = $this->postVals['thumbdim'];
+			$imgScaled300 = imagescale($imgCrop, $thumbDim);
+			imagejpeg($imgScaled300, $this->imgUploadDir.$imgBase.'-'.$thumbDim.'.jpg', 90);
+
+		}
 	}
 
 }

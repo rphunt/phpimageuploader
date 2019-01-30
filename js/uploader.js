@@ -16,6 +16,8 @@ $(document).ready(function() {
 	let msg = null; // message element
 	let thumbSizes = {}; // set of values for thumbnail
 	let thumbDim = 300; // size of square thumbnail
+	let offsetx = 0;
+	let offsety = 0;
 	let cropx = 0;
 	let cropy = 0;
 	let filename = '';
@@ -210,15 +212,12 @@ $(document).ready(function() {
 				// get thumb width and height
 				thumbSizes = thumbResize(img.width, img.height);
 
-				cropx = thumbSizes.x;
-				cropy = thumbSizes.y;
-
 	   			// resize thumb
 	   			$('#thumb #thumbimg').css({
 	   				'width': thumbSizes.width,
 	   				'height': thumbSizes.height,
-	   				'left': cropx,
-	   				'top': cropy
+	   				'left': thumbSizes.x,
+	   				'top': thumbSizes.y
 	   			});
 
 			};
@@ -297,38 +296,45 @@ $(document).ready(function() {
 		thumbSizes.x = parseInt(offsetx);
 		thumbSizes.y = parseInt(offsety);
 
+		cropx = offsetx/(-thumbDim);
+		cropy = offsety/(-thumbDim);
+
+		c('offsety'+ offsety);
+		c('thumbDim'+ thumbDim);
+		c('cropy'+ cropy);
+
 		return thumbSizes;
 	}
 
 	let thumbPos = (pos) => {
-		cropx = thumbSizes.x;
-		cropy =  thumbSizes.y;
+		offsetx = thumbSizes.x;
+		offsety =  thumbSizes.y;
 		switch(pos) {
 			case 'left':
-				cropx = 0;
+				offsetx = 0;
 				break;
 			case 'right':
-				cropx = thumbDim - thumbSizes.width;
+				offsetx = thumbDim - thumbSizes.width;
 				break;
 			case 'top':
-				cropy = 0;
+				offsety = 0;
 				break;
 			case 'bottom':
-				cropy = thumbDim - thumbSizes.height;
+				offsety = thumbDim - thumbSizes.height;
 				break;
 			default :
-				cropx = thumbSizes.x;
-				cropy =  thumbSizes.y;
+				offsetx = thumbSizes.x;
+				offsety =  thumbSizes.y;
 		};
-
-		cropx = parseInt(cropx);
-		cropy = parseInt(cropy);
 
 		// reposition thumb
 		$('#thumb #thumbimg').css({
-			'left': cropx,
-			'top': cropy
+			'left': parseInt(offsetx),
+			'top': parseInt(offsety)
 		});
+
+		cropx = offsetx/(-thumbDim);
+		cropy = offsety/(-thumbDim);
 
 	};
 

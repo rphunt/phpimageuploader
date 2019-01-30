@@ -1,0 +1,95 @@
+[33mcommit 93c4993ef41f44fa221299aaeae0135a4c842b82[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Tue Jan 29 20:58:07 2019 -0500
+
+    sending thumb info, changing vars for formdata
+
+[33mcommit beff53e0148cc3f8c6131b08967c9c83736d8cae[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Tue Jan 29 19:01:35 2019 -0500
+
+    image sizing as object
+
+[33mcommit 8bbcbfe87a940e2d5693736b49a59ff4bf295cfc[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Tue Jan 29 18:20:28 2019 -0500
+
+    select and code for positgioing thumb
+
+[33mcommit 42797a7ad4f84a8db7bf89af9e9d0d1cff31e2f5[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Tue Jan 29 15:16:17 2019 -0500
+
+    file type check, error ok button
+
+[33mcommit b82bbb3d0f39bb8c3293df8559221a299e42bb7e[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Tue Jan 29 15:03:02 2019 -0500
+
+    moved fields to html, chaned js to set or unset instead of create
+
+[33mcommit 9e8110fb6bfb07aa883adbd96d4d8fc84e89b3ed[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Tue Jan 29 01:47:32 2019 -0500
+
+    methods for setting errors and messages,
+
+[33mcommit 8484663f4559d069a7cc3ac87da417bab6ce0b48[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Tue Jan 29 00:56:13 2019 -0500
+
+    css for messages, edit button, normal message element
+
+[33mcommit ce92793b7dbb10ce2f59bce20daf951bdb66010d[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Mon Jan 28 18:39:42 2019 -0500
+
+    array for post vals
+
+[33mcommit 80954e2b478df175dcab6f7743de3a5eb1f43ce6[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Mon Jan 28 17:18:36 2019 -0500
+
+    overwrite flag
+
+[33mcommit e507d8f354ba078c36f617f3bf859a662636445a[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Mon Jan 28 16:47:55 2019 -0500
+
+    test2
+
+[33mcommit 37dc684032e78970ad503298319f75098213315e[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Mon Jan 28 16:29:50 2019 -0500
+
+    ajax functions, overwrite buttons
+
+[33mcommit 089a1052694a3982c7ddcdd44a35717c1418a981[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Mon Jan 28 00:03:30 2019 -0500
+
+    check posts, use to rename file
+
+[33mcommit 9fe742f7f123b0503971432bb67ebc0fca970116[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Sun Jan 27 20:59:40 2019 -0500
+
+    reset button
+
+[33mcommit e153903e534edbc9f50451745fe6fe9e990da902[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Sun Jan 27 20:18:02 2019 -0500
+
+    filenamme field in dropzone, size in p
+
+[33mcommit e305762133babcc7b423d1c7d9fd29795e54ceaa[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Sun Jan 27 00:23:15 2019 -0500
+
+    start index, js, css, endpoint page
+
+[33mcommit 52cce67490fa1b30be23ab55a257e1a25b55afe0[m
+Author: Reginald Hunt <rphunt2002@gmail.com>
+Date:   Sat Jan 26 19:06:21 2019 -0500
+
+    form and js
