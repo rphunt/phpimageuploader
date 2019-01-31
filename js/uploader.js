@@ -134,21 +134,33 @@ $(document).ready(function() {
 		formdata.append('thumbdim', thumbDim);
 		formdata.append('overwrite', overwrite);
 
-		$.ajax({
-			url: endpoint,
-			data: formdata,
-			processData: false,
-			contentType: false,
-			type: 'multipart/form-data',
-			method: 'POST'
-		})
-		.done(function(resp){
-			uploadDone(resp);
-		})
-		.fail(function(xhr){
-			uploadFail(xhr);
-		});
+		// $.ajax({
+		// 	url: endpoint,
+		// 	data: formdata,
+		// 	processData: false,
+		// 	contentType: false,
+		// 	type: 'multipart/form-data',
+		// 	beforeSend: function() {
+		// 		var ajx = new XMLHttpRequest();
+		// 		ajx.upload.addEventListener('progress', function(e){'e: '+c(e);}, false);
+		// 	},
+		// 	method: 'POST'
+		// })
+		// .done(function(resp){
+		// 	uploadDone(resp);
+		// })
+		// .fail(function(xhr){
+		// 	uploadFail(xhr);
+		// });
 
+		var ajax = new XMLHttpRequest();
+
+		ajax.upload.addEventListener('progress', uploadProgress, false);
+		ajax.addEventListener('load', uploadDone, false);
+		ajax.addEventListener('error', uploadFail, false);
+		ajax.addEventListener('abort', uploadFail, false);
+		ajax.open('POST', endpoint);
+		ajax.send(formdata);
 	};
 
 
@@ -156,6 +168,18 @@ $(document).ready(function() {
 	* Functions to reset the form controls,
 	* variables, and the dropzone back to initial conditions.
 	*/
+
+	function uploadProgress(e) {
+		var percent = (e.loaded/e.total) *100;
+		c(percent+'%');
+
+		// _('progressbar').value = Math.round(percent);
+
+		// _('loaded_n_total').innerHTML = "Uploaded: "+e.loaded+" Total: "+e.total;
+		// _('status').innerHTML = percent+"%";
+
+	}
+
 	let uploaderReset = (clearVars) => {
 		controlsReset();
 		if (clearVars) {varsReset();}
@@ -238,6 +262,7 @@ $(document).ready(function() {
 	* For normal responses, display OK button.
 	*/
 	let uploadDone = (resp) => {
+		resp = resp.target.responseText;
 		c('done: '+resp);
 		if (resp.indexOf('ERROR:')>-1) {
 			
@@ -266,8 +291,10 @@ $(document).ready(function() {
 	*/
 	let uploadFail = (xhr) => {
 		c('fail: '+xhr);
-		uploaderReset(false);
-		$('<p class="error">'+xhr.status+'<br>'+xhr.statusText+'</p>').appendTo(dropzone);
+		uploaderReset(true);
+		msg = $('<div class="respmsg resperror"><p>'+xhr.status+'<br>'+xhr.statusText+'</p></div>').appendTo(dropzone);
+		$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
+
 		return false;
 	};	
 
@@ -298,10 +325,6 @@ $(document).ready(function() {
 
 		cropx = offsetx/(-thumbDim);
 		cropy = offsety/(-thumbDim);
-
-		c('offsety'+ offsety);
-		c('thumbDim'+ thumbDim);
-		c('cropy'+ cropy);
 
 		return thumbSizes;
 	}
