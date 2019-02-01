@@ -106,25 +106,24 @@ $(document).ready(function() {
 	dropzone.on('click', '#btnoverwriteyes', function(e) {
 		e.preventDefault();
 		overwrite =  true;
-		msg.remove();
 		upload();
 	});
 
 	dropzone.on('click', '#btnoverwriteno', function(e) {
 		e.preventDefault();
-		msg.remove();
+		if(msg) {msg.remove();}	
 		uploaderReset(true)
 	});
 
 	dropzone.on('click', '#btnoverwriteedit', function(e) {
 		e.preventDefault();
-		msg.remove();
+		if(msg) {msg.remove();}	
 		controlsShow();
 	});
 
 	dropzone.on('click', '#btnok', function(e) {
 		e.preventDefault();
-		msg.remove();
+		if(msg) {msg.remove();}	
 		uploaderReset(true)
 	});
 
@@ -278,11 +277,13 @@ $(document).ready(function() {
 	* For normal responses, display OK button.
 	*/
 	let uploadDone = (e) => {
+		if(msg) {msg.remove();}	
 		controlsHide();
+
 		resp = e.target.responseText;
-		c('done: '+resp);
+
 		if (resp.indexOf('ERROR:')>-1) {
-			
+
 			controlsReset();
 
 			msg = $('<div class="respmsg resperror"><p>'+resp+'</p></div>').appendTo(dropzone);
