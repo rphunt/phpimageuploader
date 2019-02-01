@@ -40,6 +40,7 @@ $(document).ready(function() {
 	*/
 	dropzone[0].ondrop = (e) => {
 		e.preventDefault();
+		setThumbPos();
 		srcFile = e.dataTransfer.files[0];
 		display();
 	}
@@ -50,6 +51,7 @@ $(document).ready(function() {
 	*/
 	input.on('change', function(e) {
 		e.preventDefault();
+		setThumbPos();
 		srcFile = input[0].files[0];
 		display();
 	});
@@ -111,19 +113,19 @@ $(document).ready(function() {
 
 	dropzone.on('click', '#btnoverwriteno', function(e) {
 		e.preventDefault();
-		if(msg) {msg.remove();}	
+		msg.remove();
 		uploaderReset(true)
 	});
 
 	dropzone.on('click', '#btnoverwriteedit', function(e) {
 		e.preventDefault();
-		if(msg) {msg.remove();}	
+		msg.remove();
 		controlsShow();
 	});
 
 	dropzone.on('click', '#btnok', function(e) {
 		e.preventDefault();
-		if(msg) {msg.remove();}	
+		msg.remove();
 		uploaderReset(true)
 	});
 
@@ -390,5 +392,9 @@ $(document).ready(function() {
 		cropy = offsety/(-thumbDim);
 
 	};
+
+	let setThumbPos = () => {
+		$( 'option[value="center"]' ).prop( 'selected', 'selected' );
+	}
 
 });
