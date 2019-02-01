@@ -14,8 +14,9 @@ $(document).ready(function() {
 	let dropzone = $('#dropzone'); // dropzone as element
 	let srcFile = null; // set to the file data
 	let msg = null; // message element
-	let thumbSizes = {}; // set of values for thumbnail
-	let thumbDim = 300; // size of square thumbnail
+	let thumbSizes = {}; // set of values for thumbnail, width, height, x, y
+	let thumbDefault = 300; //  default size of square thumbnail
+	let thumbDim = thumbDefault; // size of square thumbnail
 	let offsetx = 0;
 	let offsety = 0;
 	let cropx = 0;
@@ -55,6 +56,7 @@ $(document).ready(function() {
 		e.preventDefault();
 		c('submit');
 		filename =  form[0].filename.value;
+		thumbDim =  form[0].thumbsize.value;
 		upload();
 	});
 
@@ -62,6 +64,21 @@ $(document).ready(function() {
 		e.preventDefault();
 		uploaderReset(true);
 	});
+
+	$('#btnthumbedit').on('click', function(e) {
+		e.preventDefault();
+		$('#imgmain').css('margin-left', '-400px');
+	});
+
+	$('#btnimgback').on('click', function(e) {
+		e.preventDefault();
+		$('#imgmain').css('margin-left', '0');
+	});
+
+	$('#thumbpos').on('change', function(e) {
+		thumbPos($(this).val());
+	})
+
 
 	/* 
 	* Handle other drag events to have no effect.
@@ -78,6 +95,9 @@ $(document).ready(function() {
 		e.preventDefault();
 	}
 	
+	/*
+	* Handle events form elements created by ajax.
+	*/
 	dropzone.on('click', '#btnoverwriteyes', function(e) {
 		e.preventDefault();
 		overwrite =  true;
@@ -102,21 +122,6 @@ $(document).ready(function() {
 		msg.remove();
 		uploaderReset(true)
 	});
-
-	dropzone.on('click', '#btnthumbedit', function(e) {
-		e.preventDefault();
-		$('#imgmain').css('margin-left', '-400px');
-	});
-
-	dropzone.on('click', '#btnimgback', function(e) {
-		e.preventDefault();
-		$('#imgmain').css('margin-left', '0');
-	});
-
-	$('#thumbpos').on('change', function(e) {
-		thumbPos($(this).val());
-	})
-
 
 	/*** Functions ***/
 
@@ -189,6 +194,9 @@ $(document).ready(function() {
 		if (msg) {msg.remove()};
 		$('#uploadersubmit, #uploaderreset').hide();
 		$('#imgmain').css('margin-left', '0');
+		for (i=0; i < $('#thumbpos option').length; i++) {
+			$('#thumbpos option').eq(i).show();
+		}
 	};
 
 	let controlsShow = () => {
@@ -196,16 +204,17 @@ $(document).ready(function() {
 	};
 
 	let varsReset = () => {
-		$('#imgwrap, #thumb').hide();
-		$('#imgwrap #image, #thumb #thumbimg').attr('src', '');
-		$('#imgwrap #filename').val('');
-		$('#imgwrap #size span').text('');
-		$('#imgwrap #width span').text('');
-		$('#imgwrap #height span').text('');
+		$('#imgspec, #thumbspec').hide();
+		$('#imgspec #image, #thumbspec #thumbimg').attr('src', '');
+		$('#imgspec #filename').val('');
+		$('#imgspec #size span').text('');
+		$('#imgspec #width span').text('');
+		$('#imgspec #height span').text('');
 
 		srcFile = null;
 		form[0].reset();
 		overwrite = false;
+		thumbDim = thumbDefault; 
 	};
 
 	/*
@@ -225,19 +234,19 @@ $(document).ready(function() {
 			// wait for image to load, then display form.
 			img.onload =function() {
 
-	   			$('#imgwrap #image, #thumb #thumbimg').attr('src', img.src);
-	   			$('#imgwrap #filename').val(srcFile.name);
-	   			$('#imgwrap #size span').text(srcFile.size);
-	   			$('#imgwrap #width span').text(img.width);
-	   			$('#imgwrap #height span').text(img.height);
-	   			$('#imgwrap, #thumb').show();
+	   			$('#imgspec #image, #thumbspec #thumbimg').attr('src', img.src);
+	   			$('#imgspec #filename').val(srcFile.name);
+	   			$('#imgspec #size span').text(srcFile.size);
+	   			$('#imgspec #width span').text(img.width);
+	   			$('#imgspec #height span').text(img.height);
+	   			$('#imgspec, #thumbspec').show();
 
 
 				// get thumb width and height
 				thumbSizes = thumbResize(img.width, img.height);
 
 	   			// resize thumb
-	   			$('#thumb #thumbimg').css({
+	   			$('#thumbspec #thumbimg').css({
 	   				'width': thumbSizes.width,
 	   				'height': thumbSizes.height,
 	   				'left': thumbSizes.x,
@@ -261,8 +270,8 @@ $(document).ready(function() {
 	* If response says file exists,  create buttons for overwrite question.
 	* For normal responses, display OK button.
 	*/
-	let uploadDone = (resp) => {
-		resp = resp.target.responseText;
+	let uploadDone = (e) => {
+		resp = e.target.responseText;
 		c('done: '+resp);
 		if (resp.indexOf('ERROR:')>-1) {
 			
@@ -289,17 +298,18 @@ $(document).ready(function() {
 	* Actions on ajax fail.
 	* Display status info
 	*/
-	let uploadFail = (xhr) => {
-		c('fail: '+xhr);
+	let uploadFail = (e) => {
+		c('fail: '+e);
 		uploaderReset(true);
-		msg = $('<div class="respmsg resperror"><p>'+xhr.status+'<br>'+xhr.statusText+'</p></div>').appendTo(dropzone);
+		msg = $('<div class="respmsg resperror"><p>'+e.status+'<br>'+e.statusText+'</p></div>').appendTo(dropzone);
 		$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 
 		return false;
 	};	
 
 	/*
-	* set values to resize and reposition thumbnail
+	* Set values to resize and reposition thumbnail.
+	* Set positioing options depending on aspect ratio.
 	*/
 
 	let thumbResize = (wd, ht) => {
@@ -311,11 +321,17 @@ $(document).ready(function() {
 			ht = thumbDim/aspect;
 			offsetx = 0; 
 			offsety = (ht-wd)/-2; 
+
+			$('#thumbpos option').eq(3).hide();
+			$('#thumbpos option').eq(4).hide();
 		} else  {
 			wd = thumbDim * aspect;
 			ht = thumbDim;
 			offsetx = (wd-ht)/-2; 
 			offsety = 0; 
+
+			$('#thumbpos option').eq(1).hide();
+			$('#thumbpos option').eq(2).hide();
 		}
 
 		thumbSizes.width = wd;
@@ -328,6 +344,11 @@ $(document).ready(function() {
 
 		return thumbSizes;
 	}
+
+	/*
+	* Reposition thumbnail when select option is chosen.
+	* Set a proportion version of the offset also.
+	*/
 
 	let thumbPos = (pos) => {
 		offsetx = thumbSizes.x;
@@ -351,7 +372,7 @@ $(document).ready(function() {
 		};
 
 		// reposition thumb
-		$('#thumb #thumbimg').css({
+		$('#thumbspec #thumbimg').css({
 			'left': parseInt(offsetx),
 			'top': parseInt(offsety)
 		});

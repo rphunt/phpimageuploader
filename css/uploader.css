@@ -92,7 +92,7 @@ h1 {
 	grid-template-columns: 1fr 1fr;
 }
 
-#imgwrap {
+#imgspec, #thumbspec {
 	height: auto;
 	min-height: 400px;
 	text-align: center;
@@ -101,7 +101,7 @@ h1 {
 	padding: 10px;
 }
 
-#imgwrap img {
+#imgspec #image, #thumbspec #thumbimage {
 	height: 300px;
 	width: 300px;
 	object-fit: contain;
@@ -109,7 +109,7 @@ h1 {
 	border: solid 1px #999999;
 }
 
-#imgwrap input[type="text"], #imgwrap p {
+#imgmain input[type="text"] {
 	font-size: 1em;
 	background-color: #ffffff;
 	border: solid 1px #999999;
@@ -119,21 +119,24 @@ h1 {
 	text-align: left;
 }
 
-#imgwrap p {
+#imgmain label {
+	font-size: 1em;
+	text-align: left;
+	display: block;
+	width: 100%;
 	background-color: transparent;
 }
 
-#thumb {
-	height: auto;
-	min-height: 400px;
-	text-align: center;
+#imgmain p {
+	font-size: 1em;
 	background-color: transparent;
-	display: none;
-	padding: 10px;
-
+	padding: .5em 0;
+	margin: 0 0 1em 0;
+	width: 100%;
+	text-align: left;
 }
 
-#thumb div {
+#thumbspec .imgwrap {
 	height: 300px;
 	width: 300px;
 	overflow: hidden;
@@ -141,17 +144,22 @@ h1 {
 	position: relative;
 }
 
-#thumb #thumbimg {
+#thumbspec #thumbimg {
 	position: absolute;
 	top: 0;
 	left: 0;
 }
 
-#thumb #thumbpos {
+#thumbspec #thumbpos {
 	border: solid 1px #999;
 	color: black;
 	background-color: #cccccc;
 	width: auto;
 	padding: .5em;
 	font-size: 1em;
+	margin: 0 auto 1em auto;
+}
+
+.hide {
+	display: none;
 }
