@@ -26,10 +26,13 @@ $(document).ready(function() {
 
 	let c = function(msg) {console.log(msg);} // console abbreviation
 
+	/* Initialize */
+
+	form[0].reset();
+
 
 	/*** Events ***/
 
-	form[0].reset();
 
 	/* Handle file drag and drop event. 
 	* Assign file data to srcFile.
@@ -199,6 +202,10 @@ $(document).ready(function() {
 		$('#thumbpos option').show();
 	};
 
+	let controlsHide = () => {
+		$('#uploadersubmit, #uploaderreset').hide();
+	};
+
 	let controlsShow = () => {
 		$('#uploadersubmit, #uploaderreset').show();
 	};
@@ -271,6 +278,7 @@ $(document).ready(function() {
 	* For normal responses, display OK button.
 	*/
 	let uploadDone = (e) => {
+		controlsHide();
 		resp = e.target.responseText;
 		c('done: '+resp);
 		if (resp.indexOf('ERROR:')>-1) {

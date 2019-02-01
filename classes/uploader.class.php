@@ -5,6 +5,7 @@ class imgUploader {
 	/* Set variables. */
 
 	private $imgUploadDir = 'uploads/'; //where images will be saved
+	private $imgThumbDir = 'thumbs/'; //where images will be saved
 	private $uploadField = 'uploaderimg'; //upload form input field name
 	private $files = null; //temporary storage for $_FILES global
 	private $imgLoaded = null; //properties of the uploaded image
@@ -15,6 +16,8 @@ class imgUploader {
 	private $imgScaledLarge = NULL; // resized image
 	private $imgScaledThumb = NULL; // resized thumb
 	private $imgPath = ''; //file path information
+	private $destinationLarge; //final destination path for large file
+	private $destinationThumb; //final destination path for thumb file
 	private $imgFilename = ''; //filename to use for saved files
 	private $errors = ''; //errors message to be displayed
 	private $msgs = ''; // messages to be displayed
@@ -82,6 +85,12 @@ class imgUploader {
 			$this->set_error('Upload is incorrectly formatted. Note, only one file is accepted at a time.');
 			$this->show_error(true);
 		} else {
+			
+			/*
+			* Check files array for correct fieldname.
+			* Check if filename is posted.
+			* Set variables for the image, the path, the filename, the destination naming.
+			*/
 			$this->imgLoaded = $this->files['uploaderimg'];
 			
 			if($this->postVals['filename']!='') {
@@ -89,6 +98,10 @@ class imgUploader {
 
 				$this->imgPath = pathinfo($this->imgLoaded['name']);
 				$this->imgFilename = strtolower($this->imgPath['filename']);
+
+				$this->destinationLarge = $this->imgUploadDir.$this->imgFilename.'.jpg';
+				$this->destinationThumb = $this->imgUploadDir.$this->imgFilename.'-thumb.jpg';
+
 			}
 		}
 	}
@@ -134,18 +147,6 @@ class imgUploader {
 		/* Check for excessive file size. */
 		if ($this->imgLoaded['size']>$this->imgMax) {
 			$this->set_error("The maximum file size allowed is ".$this->imgMax.".");
-			$this->show_error(true);
-		}
-	}
-
-	private function checkExistingFile() {
-		/* Check if file already exists. */
-		
-		if ($this->postVals['overwrite']=='true') {
-			$this->set_msg('Overwriting.'); // testing - delete later.
-			$this->show_msg();
-		} else if (file_exists($this->imgUploadDir.$this->imgLoaded['name'])) {
-			$this->set_error('<strong>'.$this->imgUploadDir.$this->imgLoaded['name']."</strong><br>file already exists. Overwrite?");
 			$this->show_error(true);
 		}
 	}
@@ -227,7 +228,7 @@ class imgUploader {
 
 
 	/*
-	* Default thumbnail cropping to square and resizing to 300.
+	* Default thumbnail cropping to square, then resizing to 300.
 	*/
 	private function makeThumb() {
 
@@ -255,11 +256,11 @@ class imgUploader {
 
 	private function imgSave() {
 
-		/* to do: handle overwrites */
+		$this->checkExistingFile();
 
 		/* Save scaled large image */
-		if (imagejpeg($this->imgScaledLarge, $this->imgUploadDir.$this->imgFilename.'.jpg', 90)) {
-			$this->set_msg("Large upload complete");
+		if (imagejpeg($this->imgScaledLarge, $this->destinationLarge, 90)) {
+			$this->set_msg("Large save complete");
 			$this->show_msg();
 		} else {
 			$this->set_error("There was a problem saving the large file on the server.");
@@ -267,8 +268,8 @@ class imgUploader {
 		}
 
 		/* Save scaled thumb image */
-		if (imagejpeg($this->imgScaledThumb, $this->imgUploadDir.$this->imgFilename.'-thumb.jpg', 90)) {
-			$this->set_msg("Thumb upload complete");
+		if (imagejpeg($this->imgScaledThumb, $this->destinationThumb, 90)) {
+			$this->set_msg("Thumb save complete");
 			$this->show_msg();
 		} else {
 			$this->set_error("There was a problem saving the thumb file on the server.");
@@ -276,6 +277,20 @@ class imgUploader {
 		}
 
 	}
+
+
+	private function checkExistingFile() {
+		/* Check if file already exists. */
+		
+		if ($this->postVals['overwrite']=='true') {
+			$this->set_msg('Overwriting.'); // testing - delete later.
+			$this->show_msg();
+		} else if (file_exists($this->destinationLarge)) {
+			$this->set_error('<strong>'.$this->imgFilename."</strong><br>file already exists. Overwrite?");
+			$this->show_error(true);
+		}
+	}
+
 
 }
 
