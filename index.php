@@ -30,7 +30,7 @@
 					<label for="thumbsize">Thumb Size:</label>
 					<input type="text" name="thumbsize" id="thumbsize" value="300">
 					<div>
-						<select id="thumbpos">
+						<select id="thumbpos" name="thumbpos">
 							<option value="center" selected>Center</option>
 							<option value="top">Top</option>
 							<option value="bottom">Bottom</option>

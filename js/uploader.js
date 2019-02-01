@@ -194,9 +194,7 @@ $(document).ready(function() {
 		if (msg) {msg.remove()};
 		$('#uploadersubmit, #uploaderreset').hide();
 		$('#imgmain').css('margin-left', '0');
-		for (i=0; i < $('#thumbpos option').length; i++) {
-			$('#thumbpos option').eq(i).show();
-		}
+		$('#thumbpos option').show();
 	};
 
 	let controlsShow = () => {
