@@ -29,6 +29,8 @@ $(document).ready(function() {
 
 	/*** Events ***/
 
+	form[0].reset();
+
 	/* Handle file drag and drop event. 
 	* Assign file data to srcFile.
 	* Display file info.
