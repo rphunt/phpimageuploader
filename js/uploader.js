@@ -12,8 +12,9 @@ $(document).ready(function() {
 	let input = $('#uploaderimg'); // file input as object
 	let endpoint = 'uploader.php'; // endpoint path
 	let dropzone = $('#dropzone'); // dropzone as element
+	let msg = $('#respmsg'); // message element
+
 	let srcFile = null; // set to the file data
-	let msg = null; // message element
 	let thumbSizes = {}; // set of values for thumbnail, width, height, x, y
 	let thumbDefault = 300; //  default size of square thumbnail
 	let thumbDim = thumbDefault; // size of square thumbnail
@@ -24,12 +25,7 @@ $(document).ready(function() {
 	let filename = '';
 	let overwrite = false;
 
-	let c = function(msg) {console.log(msg);} // console abbreviation
-
-	/* Initialize */
-
-	form[0].reset();
-
+	let c = function(log) {console.log(log);} // console abbreviation
 
 	/*** Events ***/
 
@@ -40,7 +36,6 @@ $(document).ready(function() {
 	*/
 	dropzone[0].ondrop = (e) => {
 		e.preventDefault();
-		setThumbPos();
 		srcFile = e.dataTransfer.files[0];
 		display();
 	}
@@ -51,9 +46,15 @@ $(document).ready(function() {
 	*/
 	input.on('change', function(e) {
 		e.preventDefault();
-		setThumbPos();
 		srcFile = input[0].files[0];
 		display();
+	});
+
+	/*
+	* Clear form when starting to select new file. 
+	*/
+	input.on('click', function() {
+		uploaderReset(true);
 	});
 
 	/*
@@ -61,9 +62,14 @@ $(document).ready(function() {
 	*/
 	form.on('submit', function(e) {
 		e.preventDefault();
-		c('submit');
+
 		filename =  form[0].filename.value;
 		thumbDim =  form[0].thumbsize.value;
+
+		messagePanel();
+		$('<p>Uploading...</p>').appendTo(msg);
+		$('<button id="btnok" class="btndefault">Cancel</button>').appendTo(msg);
+
 		upload();
 	});
 
@@ -107,25 +113,26 @@ $(document).ready(function() {
 	*/
 	dropzone.on('click', '#btnoverwriteyes', function(e) {
 		e.preventDefault();
+		msg.empty();
 		overwrite =  true;
 		upload();
 	});
 
 	dropzone.on('click', '#btnoverwriteno', function(e) {
 		e.preventDefault();
-		msg.remove();
+		msg.hide().empty();
 		uploaderReset(true)
 	});
 
 	dropzone.on('click', '#btnoverwriteedit', function(e) {
 		e.preventDefault();
-		msg.remove();
+		msg.hide().empty();
 		controlsShow();
 	});
 
 	dropzone.on('click', '#btnok', function(e) {
 		e.preventDefault();
-		msg.remove();
+		msg.hide().empty();
 		uploaderReset(true)
 	});
 
@@ -145,24 +152,6 @@ $(document).ready(function() {
 		formdata.append('thumbdim', thumbDim);
 		formdata.append('overwrite', overwrite);
 
-		// $.ajax({
-		// 	url: endpoint,
-		// 	data: formdata,
-		// 	processData: false,
-		// 	contentType: false,
-		// 	type: 'multipart/form-data',
-		// 	beforeSend: function() {
-		// 		var ajx = new XMLHttpRequest();
-		// 		ajx.upload.addEventListener('progress', function(e){'e: '+c(e);}, false);
-		// 	},
-		// 	method: 'POST'
-		// })
-		// .done(function(resp){
-		// 	uploadDone(resp);
-		// })
-		// .fail(function(xhr){
-		// 	uploadFail(xhr);
-		// });
 
 		var ajax = new XMLHttpRequest();
 
@@ -192,12 +181,12 @@ $(document).ready(function() {
 	}
 
 	let uploaderReset = (clearVars) => {
+		form[0].reset();
 		controlsReset();
 		if (clearVars) {varsReset();}
 	};
 
 	let controlsReset = () => {
-		if (msg) {msg.remove()};
 		$('#uploadersubmit, #uploaderreset').hide();
 		$('#imgmain').css('margin-left', '0');
 		$('#thumbpos option').show();
@@ -279,7 +268,6 @@ $(document).ready(function() {
 	* For normal responses, display OK button.
 	*/
 	let uploadDone = (e) => {
-		if(msg) {msg.remove();}	
 		controlsHide();
 
 		resp = e.target.responseText;
@@ -287,8 +275,8 @@ $(document).ready(function() {
 		if (resp.indexOf('ERROR:')>-1) {
 
 			controlsReset();
-
-			msg = $('<div class="respmsg resperror"><p>'+resp+'</p></div>').appendTo(dropzone);
+			msg.empty();
+			$('<p>'+resp+'</p>').appendTo(msg);
 
 			if (resp.indexOf('Overwrite?')>-1) {
 				$('<button id="btnoverwriteyes" class="btndefault">Yes</button>').appendTo(msg);
@@ -300,7 +288,9 @@ $(document).ready(function() {
 		
 			return false;
 		} else {
-			msg = $('<div class="respmsg"><p>'+resp+'</p></div>').appendTo(dropzone);
+			msg.empty();
+
+			$('<p>'+resp+'</p>').appendTo(msg);
 			$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 		}
 	};
@@ -312,7 +302,9 @@ $(document).ready(function() {
 	let uploadFail = (e) => {
 		c('fail: '+e);
 		uploaderReset(true);
-		msg = $('<div class="respmsg resperror"><p>'+e.status+'<br>'+e.statusText+'</p></div>').appendTo(dropzone);
+
+		messagePanel(true);
+		$('<p>'+e.status+'<br>'+e.statusText+'</p>').appendTo(msg);
 		$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 
 		return false;
@@ -393,8 +385,8 @@ $(document).ready(function() {
 
 	};
 
-	let setThumbPos = () => {
-		$( 'option[value="center"]' ).prop( 'selected', 'selected' );
-	}
+	let messagePanel = () => {
+		msg.show();
+	};
 
 });

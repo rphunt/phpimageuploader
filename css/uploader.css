@@ -36,7 +36,7 @@ h1 {
 
 /* errors */
 
-.respmsg {
+#respmsg {
 	background-color: rgba(255, 255, 255, .8);
 	color: #000000;
 	padding: 10px;
@@ -46,14 +46,15 @@ h1 {
 	left: 0;
 	height: 100%;
 	width: 100%;
+	display: none;
 }
 
-.respmsg p {
+#respmsg p {
 	color: inherit;
 	margin: 0 0 1em 0;
 }
 
-.respmsg strong {
+#respmsg strong {
 	color: inherit;
 }
 

@@ -42,6 +42,7 @@
 				</section>
 			</div>
 		</div>
+		<div id="respmsg"></div>
 	</div>
 
 <label for="uploaderimg" id="uploaderlbl"  class="btndefault">Select Image</label>
