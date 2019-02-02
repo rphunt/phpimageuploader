@@ -67,7 +67,7 @@ $(document).ready(function() {
 		thumbDim =  form[0].thumbsize.value;
 
 		messagePanel();
-		$('<p>Uploading...</p>').appendTo(msg);
+		$('<div class="progress holder"><div class="progress value">Uploading...<div id="num"></div><div id="perc"></div></div></div>').appendTo(msg);
 		$('<button id="btnok" class="btndefault">Cancel</button>').appendTo(msg);
 
 		upload();
@@ -113,7 +113,6 @@ $(document).ready(function() {
 	*/
 	dropzone.on('click', '#btnoverwriteyes', function(e) {
 		e.preventDefault();
-		msg.empty();
 		overwrite =  true;
 		upload();
 	});
@@ -173,10 +172,10 @@ $(document).ready(function() {
 		var percent = (e.loaded/e.total) *100;
 		c(percent+'%');
 
-		// _('progressbar').value = Math.round(percent);
+		$('.progress.value').css('width', Math.round(percent)+'%');
 
-		// _('loaded_n_total').innerHTML = "Uploaded: "+e.loaded+" Total: "+e.total;
-		// _('status').innerHTML = percent+"%";
+		$('.progress #num').text("Uploaded: "+e.loaded+" Total: "+e.total);
+		$('.progress #perc').text(percent+"%");
 
 	}
 
@@ -275,8 +274,7 @@ $(document).ready(function() {
 		if (resp.indexOf('ERROR:')>-1) {
 
 			controlsReset();
-			msg.empty();
-			$('<p>'+resp+'</p>').appendTo(msg);
+			$('<p class="resperror">'+resp+'</p>').appendTo(msg);
 
 			if (resp.indexOf('Overwrite?')>-1) {
 				$('<button id="btnoverwriteyes" class="btndefault">Yes</button>').appendTo(msg);
@@ -288,7 +286,6 @@ $(document).ready(function() {
 		
 			return false;
 		} else {
-			msg.empty();
 
 			$('<p>'+resp+'</p>').appendTo(msg);
 			$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
@@ -304,7 +301,7 @@ $(document).ready(function() {
 		uploaderReset(true);
 
 		messagePanel(true);
-		$('<p>'+e.status+'<br>'+e.statusText+'</p>').appendTo(msg);
+		$('<p class="resperror">'+e.status+'<br>'+e.statusText+'</p>').appendTo(msg);
 		$('<button id="btnok" class="btndefault">OK</button>').appendTo(msg);
 
 		return false;
