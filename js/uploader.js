@@ -1,5 +1,5 @@
 window.onload = (e) => {
-	
+
 	/* Init */
 
 	let gebi = (id) => {
@@ -17,7 +17,8 @@ window.onload = (e) => {
 	/* Variables */
 
 	let form = gebi('uploaderform');
-	let fileInput = gebi('filename');
+	let fileInput = gebi('uploaderimg');
+	c(fileInput);
 	let dropzone = gebi('dropzone');
 	let msg = gebi('respmsg');
 
@@ -26,33 +27,35 @@ window.onload = (e) => {
 	let btnimgback = gebi('btnimgback');
 	let thumbpos = gebi('thumbpos');
 
-	let endpoint = 'uploader.php';
 	let srcFile = null;
 	let filename = '';
 	let overwrite = false;
 	let scaleDim = 800;
 	let thumbDim = 300;
+	let endpoint = 'uploader.php';
 
 	/* Events */
 
-	dropzone.addEventListener('ondrop',  (e) => {
+	dropzone.ondrop = (e) => {
 		e.preventDefault();
 		srcFile = e.dataTransfer.files[0];
 		display();
-	});
+	};
 
-	fileInput.addEventListener('onchange', (e) => {
+	fileInput.addEventListener('change', (e) => {
 		e.preventDefault();
+		c('change');
 		srcFile = fileInput.files[0];
 		display();
 	});
 
-	fileInput.addEventListener('onclick', () => {
+	fileInput.addEventListener('click', () => {
 		//uploaderReset(true);
+		c('click');
 	});
 
 
-	form.addEventListener('onsubmit', (e) => {
+	form.addEventListener('submit', (e) => {
 		e.preventDefault();
 
 		filename =  form.filename.value;
@@ -66,22 +69,22 @@ window.onload = (e) => {
 		//upload();
 	});
 
-	uploaderreset.addEventListener('onclick', (e) => {
+	uploaderreset.addEventListener('click', (e) => {
 		e.preventDefault();
 		uploaderReset(true);
 	});
 
-	btnthumbedit.addEventListener('onclick', (e) => {
+	btnthumbedit.addEventListener('click', (e) => {
 		e.preventDefault();
 		$('#imgmain').css('margin-left', '-400px');
 	});
 
-	btnimgback.addEventListener('onclick', (e) => {
+	btnimgback.addEventListener('click', (e) => {
 		e.preventDefault();
 		$('#imgmain').css('margin-left', '0');
 	});
 
-	thumbpos.addEventListener('onchange', (e) => {
+	thumbpos.addEventListener('change', (e) => {
 		thumbPos($(this).val());
 	});
 
@@ -100,7 +103,8 @@ window.onload = (e) => {
 	/* Functions */
 
 	let display = () => {
-		uploaderReset(false);
+		//uploaderReset(false);
+		c('display');
 
 		let reader = new FileReader();
 
@@ -113,11 +117,11 @@ window.onload = (e) => {
 			img.onload =function() {
 
 	   			qs('#imgspec #image, #thumbspec #thumbimg').setAttribute('src', img.src);
-	   			qs('#imgspec #filename').textContent(srcFile.name);
-	   			qs('#imgspec #size span').textContent(srcFile.size);
-	   			qs('#imgspec #width span').textContent(img.width);
-	   			qs('#imgspec #height span').textContent(img.height);
-	   			qs('#imgspec, #thumbspec').style.display('block');
+	   			qs('#imgspec #filename').textContent = srcFile.name;
+	   			qs('#imgspec #size span').textContent = srcFile.size;
+	   			qs('#imgspec #width span').textContent = img.width;
+	   			qs('#imgspec #height span').textContent = img.height;
+	   			qs('#imgspec, #thumbspec').style.display ='block';
 
 
 				// get thumb width and height
@@ -125,10 +129,10 @@ window.onload = (e) => {
 
 	   			// resize thumb
 	   			specImgStyles = qs('#thumbspec #thumbimg').style;
-	   			specImgStyles.width(thumbSizes.width);
-	   			specImgStyles.height(thumbSizes.height);
-	   			specImgStyles.left(thumbSizes.x);
-	   			specImgStyles.top(thumbSizes.y);
+	   			specImgStyles.width(thumbSizes.width+'px');
+	   			specImgStyles.height(thumbSizes.height+'px');
+	   			specImgStyles.left(thumbSizes.x+'px');
+	   			specImgStyles.top(thumbSizes.y+'px');
 			};
 
 			// load image
@@ -141,6 +145,10 @@ window.onload = (e) => {
 		controlsShow();
 	};
 
+
+	let controlsShow = () => {
+		qs('#uploadersubmit, #uploaderreset').style.display ='block';
+	};
 
 
 	let messagePanel = () => {
