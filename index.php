@@ -18,6 +18,8 @@
 					<div class="imgwrap"><img id="image" src=""></div>
 					<label for="filename">File Name:</label>
 					<input type="text" id="filename" name="filename" value="">
+					<label for="imgscalelimit">Rescaling Limit:</label>
+					<input type="text" id="imgscalelimit" name="imgscalelimit" value="800">
 					<p id="size">Size: <span></span></p>
 					<p id="width">Width: <span></span></p>
 					<p id="height">Height: <span></span></p>
