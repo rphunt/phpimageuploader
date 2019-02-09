@@ -297,7 +297,7 @@ window.onload = (e) => {
 		btnoverwriteno = gebi('btnoverwriteno');
 		btnoverwriteedit = gebi('btnoverwriteedit');
 		btnok = gebi('btnok');
-		c(btnok);
+		btncancel = gebi('btncancel');
 
 		if (btnoverwriteyes) {
 			btnoverwriteyes.addEventListener('click', (e) => {
@@ -334,6 +334,8 @@ window.onload = (e) => {
 		if (btncancel) {
 			btncancel.addEventListener('click', (e) => {
 				e.preventDefault();
+				// messageClear();
+				// uploaderReset(true);
 			});
 		}
 
