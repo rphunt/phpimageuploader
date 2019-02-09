@@ -26,6 +26,12 @@ window.onload = (e) => {
 	let btnimgback = gebi('btnimgback');
 	let thumbpos = gebi('thumbpos');
 
+	let btnoverwriteyes = null;
+	let btnoverwriteno = null;
+	let btnoverwriteedit = null;
+	let btnok = null;
+	let btcancel = null;
+
 	let srcFile = null;
 	let filename = '';
 	let overwrite = false;
@@ -63,7 +69,8 @@ window.onload = (e) => {
 
 		messagePanel();
 		msg.insertAdjacentHTML('beforeend', '<div class="progress holder"><div class="progress value">Uploading...<div id="num"></div><div id="perc"></div></div></div>');
-		msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">Cancel</button>');
+		msg.insertAdjacentHTML('beforeend', '<button id="btncancel" class="btndefault">Cancel</button>');
+		setButtons();
 
 		upload();
 	});
@@ -180,12 +187,12 @@ window.onload = (e) => {
 		controlsHide();
 
 		resp = e.target.responseText;
-		c(resp);
 
 		if (resp.indexOf('ERROR:')>-1) {
 
 			controlsReset();
-			$('<p class="resperror">'+resp+'</p>').appendTo(msg);
+
+			msg.insertAdjacentHTML('beforeend', '<p class="resperror">'+resp+'</p>');
 
 			if (resp.indexOf('Overwrite?')>-1) {
 				msg.insertAdjacentHTML('beforeend', '<button id="btnoverwriteyes" class="btndefault">Yes</button>');
@@ -193,13 +200,16 @@ window.onload = (e) => {
 				msg.insertAdjacentHTML('beforeend', '<button id="btnoverwriteedit" class="btndefault">Edit</button>');
 			} else {
 				msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">OK</button>');
+
 			}
-		
+			setButtons();
+
 			return false;
 		} else {
 
 			msg.insertAdjacentHTML('beforeend', '<p>'+resp+'</p>');
 			msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">OK</button>');
+			setButtons();
 		}
 	};
 
@@ -209,6 +219,7 @@ window.onload = (e) => {
 		messagePanel(true);
 		msg.insertAdjacentHTML('beforeend', '<p class="resperror">'+e.status+'<br>'+e.statusText+'</p>');
 		msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">OK</button>');
+		setButtons();
 
 		return false;
 	};	
@@ -282,13 +293,14 @@ window.onload = (e) => {
 
 	let setButtons = () => {
 
-		let btnoverwriteyes = gebi('btnoverwriteyes');
-		let btnoverwriteno = gebi('btnoverwriteno');
-		let btnoverwriteedit = gebi('btnoverwriteedit');
-		let btnok = gebi('btnok');
+		btnoverwriteyes = gebi('btnoverwriteyes');
+		btnoverwriteno = gebi('btnoverwriteno');
+		btnoverwriteedit = gebi('btnoverwriteedit');
+		btnok = gebi('btnok');
+		c(btnok);
 
 		if (btnoverwriteyes) {
-			btnoverwriteyes.addEventListener('onclick', (e) => {
+			btnoverwriteyes.addEventListener('click', (e) => {
 				e.preventDefault();
 				overwrite =  true;
 				upload();
@@ -296,26 +308,32 @@ window.onload = (e) => {
 		}
 
 		if (btnoverwriteno) {
-			btnoverwriteno.addEventListener('onclick', (e) => {
+			btnoverwriteno.addEventListener('click', (e) => {
 				e.preventDefault();
-				msg.hide().empty();
-				uploaderReset(true)
+				messageClear();
+				uploaderReset(true);
 			});
 		}
 
 		if (btnoverwriteedit) {
-			btnoverwriteedit.addEventListener('onclick', (e) => {
+			btnoverwriteedit.addEventListener('click', (e) => {
 				e.preventDefault();
-				msg.hide().empty();
+				messageClear();
 				controlsShow();
 			});
 		}
 
 		if (btnok) {
-			btnok.addEventListener('onclick', (e) => {
+			btnok.addEventListener('click', (e) => {
 				e.preventDefault();
-				msg.hide().empty();
-				uploaderReset(true)
+				messageClear();
+				uploaderReset(true);
+			});
+		}
+		
+		if (btncancel) {
+			btncancel.addEventListener('click', (e) => {
+				e.preventDefault();
 			});
 		}
 
@@ -341,6 +359,7 @@ window.onload = (e) => {
 		qs('#uploaderreset').style.display = 'none';
 		gebi('imgmain').style.marginLeft = 0;
 		qs('#thumbpos option').style.display = 'block';
+		clearButtons();
 	};
 
 	let controlsHide = () => {
@@ -355,8 +374,10 @@ window.onload = (e) => {
 	};
 
 	let varsReset = () => {
-		qs('#imgspec, #thumbspec').style.display = 'none';
-		qs('#imgspec #image, #thumbspec #thumbimg').setAttribute('src', '');
+		gebi('imgspec').style.display = 'none';
+		gebi('thumbspec').style.display = 'none';
+		qs('#imgspec #image').setAttribute('src', '');
+		qs('#thumbspec #thumbimg').setAttribute('src', '');
 		qs('#imgspec #filename').value ='';
 		qs('#imgspec #size span').textContent = '';
 		qs('#imgspec #width span').textContent = '';
@@ -369,7 +390,13 @@ window.onload = (e) => {
 	};
 
 	let messagePanel = () => {
-		msg.style.display= 'block';
+		msg.style.display = 'block';
+	};
+
+	let messageClear = () => {
+		msg.style.display = 'none';
+		msg.textContent = '';
+		clearButtons();
 	};
 
 };
