@@ -30,7 +30,8 @@ window.onload = (e) => {
 	let filename = '';
 	let overwrite = false;
 	let scaleDim = 800;
-	let thumbDim = 300;
+	let thumbDefault = 300;
+	let thumbDim = thumbDefault;
 	let thumbSizes = {};
 	let endpoint = 'uploader.php';
 
@@ -44,7 +45,6 @@ window.onload = (e) => {
 
 	fileInput.addEventListener('change', (e) => {
 		e.preventDefault();
-		c('change');
 		srcFile = fileInput.files[0];
 		display();
 	});
@@ -62,10 +62,10 @@ window.onload = (e) => {
 		scaleDim =  form.imgscalelimit.value;
 
 		messagePanel();
-		msg.insertAdjacentHTML('afterbegin', '<div class="progress holder"><div class="progress value">Uploading...<div id="num"></div><div id="perc"></div></div></div>');
+		msg.insertAdjacentHTML('beforeend', '<div class="progress holder"><div class="progress value">Uploading...<div id="num"></div><div id="perc"></div></div></div>');
 		msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">Cancel</button>');
 
-		//upload();
+		upload();
 	});
 
 	uploaderreset.addEventListener('click', (e) => {
@@ -102,8 +102,7 @@ window.onload = (e) => {
 	/* Functions */
 
 	let display = () => {
-		//uploaderReset(false);
-		c('display');
+		uploaderReset(false);
 
 		let reader = new FileReader();
 
@@ -177,10 +176,48 @@ window.onload = (e) => {
 
 	};
 
+	let uploadDone = (e) => {
+		controlsHide();
+
+		resp = e.target.responseText;
+		c(resp);
+
+		if (resp.indexOf('ERROR:')>-1) {
+
+			controlsReset();
+			$('<p class="resperror">'+resp+'</p>').appendTo(msg);
+
+			if (resp.indexOf('Overwrite?')>-1) {
+				msg.insertAdjacentHTML('beforeend', '<button id="btnoverwriteyes" class="btndefault">Yes</button>');
+				msg.insertAdjacentHTML('beforeend', '<button id="btnoverwriteno" class="btndefault">No</button>');
+				msg.insertAdjacentHTML('beforeend', '<button id="btnoverwriteedit" class="btndefault">Edit</button>');
+			} else {
+				msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">OK</button>');
+			}
+		
+			return false;
+		} else {
+
+			msg.insertAdjacentHTML('beforeend', '<p>'+resp+'</p>');
+			msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">OK</button>');
+		}
+	};
+
+	let uploadFail = (e) => {
+		uploaderReset(true);
+
+		messagePanel(true);
+		msg.insertAdjacentHTML('beforeend', '<p class="resperror">'+e.status+'<br>'+e.statusText+'</p>');
+		msg.insertAdjacentHTML('beforeend', '<button id="btnok" class="btndefault">OK</button>');
+
+		return false;
+	};	
+
+
 	let thumbResize = (wd, ht) => {
 		let aspect = wd/ht;
 		let offsetx, offsety;
-		let posList = qs('#thumbpos').options;
+		let posList = gebi('thumbpos').options;
 
 		if (aspect<1) {
 			wd = thumbDim;
@@ -205,8 +242,8 @@ window.onload = (e) => {
 		thumbSizes.x = parseInt(offsetx);
 		thumbSizes.y = parseInt(offsety);
 
-		//cropx = offsetx/(-thumbDim);
-		//cropy = offsety/(-thumbDim);
+		cropx = offsetx/(-thumbDim);
+		cropy = offsety/(-thumbDim);
 
 		return thumbSizes;
 	}
@@ -238,12 +275,10 @@ window.onload = (e) => {
 		thumbSpecStyles.left = parseInt(offsetx)+'px';
 		thumbSpecStyles.top = parseInt(offsety)+'px';
 
-		//cropx = offsetx/(-thumbDim);
-		//cropy = offsety/(-thumbDim);
+		cropx = offsetx/(-thumbDim);
+		cropy = offsety/(-thumbDim);
 
 	};
-
-
 
 	let setButtons = () => {
 
@@ -302,24 +337,25 @@ window.onload = (e) => {
 	};
 
 	let controlsReset = () => {
-		qs('#uploadersubmit').display = 'none';
-		qs('#uploaderreset').display = 'none';
+		qs('#uploadersubmit').style.display = 'none';
+		qs('#uploaderreset').style.display = 'none';
 		gebi('imgmain').style.marginLeft = 0;
-		qs('#thumbpos option').display = 'block';
+		qs('#thumbpos option').style.display = 'block';
 	};
 
 	let controlsHide = () => {
-		gebi('uploadersubmit').display = 'none';
-		gebi('uploaderreset').display = 'none';
+		gebi('uploadersubmit').style.display = 'none';
+		gebi('uploaderreset').style.display = 'none';
 	};
 
 	let controlsShow = () => {
-		gebi('uploadersubmit').display = 'block';
-		gebi('uploaderreset').display = 'block';
+		c('controls');
+		gebi('uploadersubmit').style.display = 'block';
+		gebi('uploaderreset').style.display = 'block';
 	};
 
 	let varsReset = () => {
-		qs('#imgspec, #thumbspec').display = 'none';
+		qs('#imgspec, #thumbspec').style.display = 'none';
 		qs('#imgspec #image, #thumbspec #thumbimg').setAttribute('src', '');
 		qs('#imgspec #filename').value ='';
 		qs('#imgspec #size span').textContent = '';
@@ -327,13 +363,13 @@ window.onload = (e) => {
 		qs('#imgspec #height span').textContent = '';
 
 		srcFile = null;
-		form[0].reset();
+		form.reset();
 		overwrite = false;
 		thumbDim = thumbDefault; 
 	};
 
 	let messagePanel = () => {
-		msg.style.display('block');
+		msg.style.display= 'block';
 	};
 
 };
