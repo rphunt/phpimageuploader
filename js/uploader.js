@@ -50,8 +50,7 @@ window.onload = (e) => {
 	});
 
 	fileInput.addEventListener('click', () => {
-		//uploaderReset(true);
-		c('click');
+		uploaderReset(true);
 	});
 
 
@@ -147,13 +146,35 @@ window.onload = (e) => {
 	};
 
 
-	let controlsShow = () => {
-		qs('#uploadersubmit, #uploaderreset').style.display ='block';
+	let upload = function() {
+
+		let formdata = new FormData();
+		formdata.append('uploaderimg', srcFile);
+		formdata.append('filename', filename);
+		formdata.append('cropx', cropx);
+		formdata.append('cropy', cropy);
+		formdata.append('thumbdim', thumbDim);
+		formdata.append('scaledim', scaleDim);
+		formdata.append('overwrite', overwrite);
+
+		var ajax = new XMLHttpRequest();
+
+		ajax.upload.addEventListener('progress', uploadProgress, false);
+		ajax.addEventListener('load', uploadDone, false);
+		ajax.addEventListener('error', uploadFail, false);
+		ajax.addEventListener('abort', uploadFail, false);
+		ajax.open('POST', endpoint);
+		ajax.send(formdata);
 	};
 
+	let uploadProgress = (e) => {
+		var percent = (e.loaded/e.total) *100;
+		c(percent+'%');
 
-	let messagePanel = () => {
-		msg.style.display('block');
+		qs('.progress.value').style.width = Math.round(percent)+'%';
+		qs('.progress #num').textContent = "Uploaded: "+e.loaded+" Total: "+e.total;
+		qs('.progress #perc').textContent = percent+"%";
+
 	};
 
 	let thumbResize = (wd, ht) => {
@@ -270,6 +291,49 @@ window.onload = (e) => {
 		if (btnoverwriteno) { btnoverwriteno = null;}
 		if (btnoverwriteedit) { btnoverwriteedit = null;}
 		if (btnok) { btnok = null;}
+	};
+
+	/* Resets Functions */
+
+	let uploaderReset = (clearVars) => {
+		form.reset();
+		controlsReset();
+		if (clearVars) {varsReset();}
+	};
+
+	let controlsReset = () => {
+		qs('#uploadersubmit').display = 'none';
+		qs('#uploaderreset').display = 'none';
+		gebi('imgmain').style.marginLeft = 0;
+		qs('#thumbpos option').display = 'block';
+	};
+
+	let controlsHide = () => {
+		gebi('uploadersubmit').display = 'none';
+		gebi('uploaderreset').display = 'none';
+	};
+
+	let controlsShow = () => {
+		gebi('uploadersubmit').display = 'block';
+		gebi('uploaderreset').display = 'block';
+	};
+
+	let varsReset = () => {
+		qs('#imgspec, #thumbspec').display = 'none';
+		qs('#imgspec #image, #thumbspec #thumbimg').setAttribute('src', '');
+		qs('#imgspec #filename').value ='';
+		qs('#imgspec #size span').textContent = '';
+		qs('#imgspec #width span').textContent = '';
+		qs('#imgspec #height span').textContent = '';
+
+		srcFile = null;
+		form[0].reset();
+		overwrite = false;
+		thumbDim = thumbDefault; 
+	};
+
+	let messagePanel = () => {
+		msg.style.display('block');
 	};
 
 };
