@@ -18,7 +18,6 @@ window.onload = (e) => {
 
 	let form = gebi('uploaderform');
 	let fileInput = gebi('uploaderimg');
-	c(fileInput);
 	let dropzone = gebi('dropzone');
 	let msg = gebi('respmsg');
 
@@ -32,6 +31,7 @@ window.onload = (e) => {
 	let overwrite = false;
 	let scaleDim = 800;
 	let thumbDim = 300;
+	let thumbSizes = {};
 	let endpoint = 'uploader.php';
 
 	/* Events */
@@ -85,7 +85,7 @@ window.onload = (e) => {
 	});
 
 	thumbpos.addEventListener('change', (e) => {
-		thumbPos($(this).val());
+		thumbPos(e.target.value);
 	});
 
 	document.ondrop = (e) => {
@@ -116,23 +116,24 @@ window.onload = (e) => {
 			// wait for image to load, then display form.
 			img.onload =function() {
 
-	   			qs('#imgspec #image, #thumbspec #thumbimg').setAttribute('src', img.src);
-	   			qs('#imgspec #filename').textContent = srcFile.name;
+	   			qs('#imgspec #image').setAttribute('src', img.src);
+	   			qs('#thumbspec #thumbimg').setAttribute('src', img.src);
+	   			qs('#imgspec #filename').value = srcFile.name;
 	   			qs('#imgspec #size span').textContent = srcFile.size;
 	   			qs('#imgspec #width span').textContent = img.width;
 	   			qs('#imgspec #height span').textContent = img.height;
-	   			qs('#imgspec, #thumbspec').style.display ='block';
-
+	   			qs('#imgspec').style.display = 'block';
+	   			qs('#thumbspec').style.display = 'block';
 
 				// get thumb width and height
 				thumbSizes = thumbResize(img.width, img.height);
 
 	   			// resize thumb
-	   			specImgStyles = qs('#thumbspec #thumbimg').style;
-	   			specImgStyles.width(thumbSizes.width+'px');
-	   			specImgStyles.height(thumbSizes.height+'px');
-	   			specImgStyles.left(thumbSizes.x+'px');
-	   			specImgStyles.top(thumbSizes.y+'px');
+	   			let imgSpecStyles = qs('#thumbspec #thumbimg').style;
+	   			imgSpecStyles.width = thumbSizes.width+'px';
+	   			imgSpecStyles.height = thumbSizes.height+'px';
+	   			imgSpecStyles.left = thumbSizes.x+'px';
+	   			imgSpecStyles.top = thumbSizes.y+'px';
 			};
 
 			// load image
@@ -154,6 +155,73 @@ window.onload = (e) => {
 	let messagePanel = () => {
 		msg.style.display('block');
 	};
+
+	let thumbResize = (wd, ht) => {
+		let aspect = wd/ht;
+		let offsetx, offsety;
+		let posList = qs('#thumbpos').options;
+
+		if (aspect<1) {
+			wd = thumbDim;
+			ht = thumbDim/aspect;
+			offsetx = 0; 
+			offsety = (ht-wd)/-2; 
+
+			posList[3].style.display = 'none';
+			posList[4].style.display = 'none';
+		} else  {
+			wd = thumbDim * aspect;
+			ht = thumbDim;
+			offsetx = (wd-ht)/-2; 
+			offsety = 0; 
+
+			posList[1].style.display = 'none';
+			posList[2].style.display = 'none';
+		}
+
+		thumbSizes.width = wd;
+		thumbSizes.height = ht;
+		thumbSizes.x = parseInt(offsetx);
+		thumbSizes.y = parseInt(offsety);
+
+		//cropx = offsetx/(-thumbDim);
+		//cropy = offsety/(-thumbDim);
+
+		return thumbSizes;
+	}
+
+	let thumbPos = (pos) => {
+		c(pos);
+		let offsetx = thumbSizes.x;
+		let offsety =  thumbSizes.y;
+		switch(pos) {
+			case 'left':
+				offsetx = 0;
+				break;
+			case 'right':
+				offsetx = thumbDim - thumbSizes.width;
+				break;
+			case 'top':
+				offsety = 0;
+				break;
+			case 'bottom':
+				offsety = thumbDim - thumbSizes.height;
+				break;
+			default :
+				offsetx = thumbSizes.x;
+				offsety =  thumbSizes.y;
+		};
+
+		// reposition thumb
+		let thumbSpecStyles = qs('#thumbspec #thumbimg').style;
+		thumbSpecStyles.left = parseInt(offsetx)+'px';
+		thumbSpecStyles.top = parseInt(offsety)+'px';
+
+		//cropx = offsetx/(-thumbDim);
+		//cropy = offsety/(-thumbDim);
+
+	};
+
 
 
 	let setButtons = () => {
